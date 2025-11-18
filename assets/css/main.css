@@ -1,0 +1,1314 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+a,
+a:visited {
+  text-decoration: none;
+  font-family: "Montserrat", sans-serif;
+  cursor: pointer;
+}
+
+button,
+._btn {
+  cursor: pointer;
+}
+
+ul li {
+  list-style: none;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  font-family: "Montserrat", sans-serif;
+  color: #ffffff;
+}
+
+.wrapper {
+  width: 100%;
+  min-height: 100%;
+  overflow: hidden;
+  background-color: #383838;
+}
+
+.container {
+  max-width: 1920px;
+  min-height: 100vh;
+  margin: 0 auto;
+  position: relative;
+  background-color: #181818;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 90px 20px 36px;
+  background-color: #181818;
+  border-bottom: 1px solid #4e4e4e;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.logo__image {
+  width: 113.33px;
+  height: 17px;
+}
+
+/* Поиск в верхнем контейнере */
+
+.search {
+  position: relative;
+  border-bottom: 1px solid #4e4e4e;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.search__svg {
+  width: 17px;
+  height: 17px;
+  margin-right: 5px;
+  stroke: #ffffff;
+  fill: transparent;
+  flex-shrink: 0;
+}
+
+.search__text {
+  flex-grow: 100;
+  background-color: transparent;
+  border: none;
+  padding: 13px 10px 14px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+  width: 100%;
+}
+
+.search__text::placeholder {
+  background-color: transparent;
+  color: #ffffff;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.search-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 20px;
+  color: #696969;
+}
+
+.search-clear:hover {
+  color: #ffffff;
+}
+
+/* Пользователь в верхнем контейнере */
+.sidebar__personal {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.sidebar__personal-name {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+  margin-right: 16px;
+}
+
+.sidebar__icon {
+  width: 43px;
+  height: 43px;
+  background-color: #313131;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar__icon svg {
+  width: 40px;
+  height: 40px;
+  fill: #ffffff;
+}
+
+/* Основное содержимое */
+.main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: row;
+  min-height: calc(100vh - 160px);
+  overflow: hidden;
+}
+
+.main__nav {
+  width: 244px;
+  background-color: #181818;
+  padding: 20px 0 20px 36px;
+  display: none; /* Скрываем на десктопе, так как навигация вверху */
+}
+
+.main__centerblock {
+  flex: 1;
+  padding: 20px 40px 20px 111px;
+  overflow-y: auto;
+  min-width: 0; /* Важно для правильного сжатия flex-элемента */
+}
+
+.main__sidebar {
+  padding: 20px 90px 20px 78px;
+  overflow-y: auto;
+}
+
+/* Стили для центрального блока */
+.centerblock__h2 {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 64px;
+  line-height: 72px;
+  letter-spacing: -0.8px;
+  margin-bottom: 45px;
+}
+
+.centerblock__filter {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 51px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter__title {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  margin-right: 15px;
+}
+
+.filter__button {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  border: 1px solid #ffffff;
+  border-radius: 60px;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter__button:hover {
+  border-color: #d9b6ff;
+  color: #d9b6ff;
+}
+
+.filter__button:active {
+  border-color: #ad61ff;
+  color: #ad61ff;
+}
+
+/* Стили для контента */
+.centerblock__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.content__title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.content__playlist {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.playlist-title__col {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 2px;
+  color: #696969;
+  text-transform: uppercase;
+}
+
+.playlist-title__svg {
+  width: 12px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
+}
+
+.col01 {
+  width: 447px;
+}
+
+.col02 {
+  width: 321px;
+}
+
+.col03 {
+  width: 245px;
+}
+
+.col04 {
+  width: 60px;
+  text-align: end;
+}
+
+/* Стили для треков */
+.playlist__item {
+  width: 100%;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.playlist__track {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  transition: background-color 0.3s ease;
+}
+
+.playlist__track:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.track__title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 447px;
+}
+
+.track__title-image {
+  width: 51px;
+  height: 51px;
+  padding: 16px;
+  background: #313131;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 17px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.track__title-svg {
+  width: 18px;
+  height: 17px;
+  fill: transparent;
+  stroke: #4e4e4e;
+}
+
+.track__title-link {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track__title-span {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #4e4e4e;
+}
+
+.track__author {
+  width: 321px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.track__author-link {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track__album {
+  width: 245px;
+}
+
+.track__album-link {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #696969;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track__time {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.track__time-svg {
+  width: 14px;
+  height: 12px;
+  margin-right: 17px;
+  fill: transparent;
+  stroke: #696969;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.track__time-svg.active {
+  fill: #b672ff;
+  stroke: #b672ff;
+}
+
+.track__time-svg:hover {
+  stroke: #acacac;
+}
+
+.track__time-text {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: right;
+  color: #696969;
+  flex-shrink: 0;
+}
+
+/* Сайдбар */
+.sidebar__block {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.sidebar__list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.sidebar__item {
+  width: 250px;
+  height: 150px;
+  margin-bottom: 30px;
+}
+
+.sidebar__link {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.sidebar__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.sidebar__img:hover {
+  transform: scale(1.05);
+}
+
+/* Плеер */
+.bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(28, 28, 28, 0.5);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  flex-shrink: 0;
+}
+
+.bar__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.bar__player-progress {
+  width: 100%;
+  height: 5px;
+  background: #2e2e2e;
+  cursor: pointer;
+  position: relative;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background: #2e2e2e;
+  position: relative;
+}
+
+.progress-filled {
+  height: 100%;
+  background: #b672ff;
+  transition: width 0.1s;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.bar__player-block {
+  height: 73px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.bar__player {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+}
+
+.bar__volume-block {
+  width: auto;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.player__controls {
+  display: flex;
+  flex-direction: row;
+  padding: 0 27px 0 0;
+  align-items: center;
+}
+
+.player__btn-prev,
+.player__btn-play,
+.player__btn-next,
+.player__btn-repeat,
+.player__btn-shuffle {
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.player__btn-prev {
+  margin-right: 23px;
+}
+
+.player__btn-prev-svg {
+  width: 15px;
+  height: 14px;
+  fill: #ffffff;
+}
+
+.player__btn-play {
+  margin-right: 23px;
+}
+
+.player__btn-play-svg {
+  width: 22px;
+  height: 20px;
+  fill: #d9d9d9;
+}
+
+.player__btn-next {
+  margin-right: 28px;
+}
+
+.player__btn-next-svg {
+  width: 15px;
+  height: 14px;
+  fill: #d9d9d9;
+}
+
+.player__btn-repeat {
+  margin-right: 24px;
+}
+
+.player__btn-repeat-svg {
+  width: 18px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
+}
+
+.player__btn-repeat.active .player__btn-repeat-svg {
+  fill: #b672ff;
+  stroke: #b672ff;
+}
+
+.player__btn-shuffle {
+  display: flex;
+  align-items: center;
+}
+
+.player__btn-shuffle-svg {
+  width: 19px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
+}
+
+.player__btn-shuffle.active .player__btn-shuffle-svg {
+  fill: #b672ff;
+  stroke: #b672ff;
+}
+
+.player__track-play {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex: 2;
+  justify-content: center;
+}
+
+.track-play__contain {
+  width: auto;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "image author" "image album";
+  align-items: center;
+}
+
+.track-play__image {
+  width: 51px;
+  height: 51px;
+  background-color: #313131;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  grid-row: 1;
+  grid-column: 1;
+  grid-area: image;
+  flex-shrink: 0;
+}
+
+.track-play__svg {
+  width: 18px;
+  height: 17px;
+  fill: transparent;
+  stroke: #4e4e4e;
+}
+
+.track-play__author {
+  grid-row: 1;
+  grid-column: 2;
+  grid-area: author;
+  min-width: 49px;
+}
+
+.track-play__author-link {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-play__album {
+  grid-row: 2;
+  grid-column: 2;
+  grid-area: album;
+  min-width: 49px;
+}
+
+.track-play__album-link {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 24px;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.track-play__like-dis {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-left: 20px;
+}
+
+.track-play__like,
+.track-play__dislike {
+  padding: 5px;
+  cursor: pointer;
+}
+
+.track-play__like-svg {
+  width: 14px;
+  height: 12px;
+  fill: transparent;
+  stroke: #696969;
+  transition: all 0.3s ease;
+}
+
+.track-play__like-svg.active {
+  fill: #b672ff;
+  stroke: #b672ff;
+}
+
+.track-play__dislike {
+  margin-left: 28.5px;
+}
+
+.track-play__dislike-svg {
+  width: 14.34px;
+  height: 13px;
+  fill: transparent;
+  stroke: #696969;
+}
+
+.volume__content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.volume__image {
+  width: 13px;
+  height: 18px;
+  margin-right: 17px;
+}
+
+.volume__svg {
+  width: 13px;
+  height: 18px;
+  fill: transparent;
+}
+
+.volume__progress {
+  width: 109px;
+}
+
+.volume__progress-line {
+  width: 109px;
+  cursor: pointer;
+}
+
+/* Кнопки */
+._btn-text:hover {
+  border-color: #d9b6ff;
+  color: #d9b6ff;
+  cursor: pointer;
+}
+
+._btn-icon:hover svg {
+  fill: transparent;
+  stroke: #acacac;
+  cursor: pointer;
+}
+
+._btn-text:active {
+  border-color: #ad61ff;
+  color: #ad61ff;
+  cursor: pointer;
+}
+
+._btn-icon:active svg {
+  fill: transparent;
+  stroke: #ffffff;
+  cursor: pointer;
+}
+
+._btn-icon:active .track-play__like-svg,
+._btn-icon:active .track-play__dislike-svg {
+  fill: #696969;
+  stroke: #ffffff;
+  cursor: pointer;
+}
+
+/* ===== АДАПТИВНОСТЬ ===== */
+
+/* Большие планшеты и маленькие десктопы (992px - 1440px) */
+@media (max-width: 1440px) {
+  .main__centerblock {
+    padding: 20px 40px 20px 80px;
+  }
+
+  .main__sidebar {
+    display: flex;
+    justify-content: center;
+    padding: 20px 20px;
+    flex-direction: column;
+  }
+
+  .col01 {
+    width: 400px;
+  }
+  .col02 {
+    width: 280px;
+  }
+  .col03 {
+    width: 200px;
+  }
+}
+
+/* Планшеты (768px - 991px) */
+@media (max-width: 991px) {
+  /* Скрываем обычное меню на планшетах и показываем бургер */
+
+  .centerblock__search {
+    order: 2;
+    width: 100%;
+    margin: 0;
+  }
+
+  .sidebar__personal {
+    order: 3;
+    display: none; /* Скрываем на планшетах, показываем в бургер-меню */
+  }
+
+  .main {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .main__centerblock {
+    width: 100%;
+    padding: 20px 30px;
+    order: 1;
+  }
+
+  .main__sidebar {
+    width: 100%;
+    max-width: none;
+    padding: 20px 30px;
+    order: 2;
+  }
+
+  .sidebar__list {
+    flex-direction: row;
+    justify-content: space-around;
+    gap: 20px;
+  }
+
+  .sidebar__item {
+    width: 200px;
+    height: 120px;
+    margin-bottom: 0;
+  }
+
+  .centerblock__h2 {
+    font-size: 36px;
+    line-height: 44px;
+    margin-bottom: 30px;
+  }
+
+  .content__playlist {
+    max-height: 50vh;
+  }
+
+  .col01,
+  .col02,
+  .col03,
+  .col04 {
+    width: auto;
+    flex: 1;
+  }
+
+  .col01 {
+    flex: 2;
+  }
+  .col02 {
+    flex: 1.5;
+  }
+  .col03 {
+    flex: 1;
+  }
+  .col04 {
+    flex: 0.5;
+  }
+
+  .track__title,
+  .track__author,
+  .track__album {
+    width: auto;
+    min-width: 0;
+  }
+
+  /* Адаптация плеера для планшетов */
+  .bar__player-block {
+    flex-wrap: wrap;
+    height: auto;
+    padding: 15px 20px;
+    gap: 15px;
+  }
+
+  .bar__player {
+    order: 1;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .player__track-play {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    margin: 10px 0;
+  }
+
+  .bar__volume-block {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .volume__content {
+    justify-content: center;
+  }
+}
+
+/* Большие мобильные (576px - 767px) */
+@media (max-width: 767px) {
+  .centerblock__search {
+    margin: 0;
+  }
+
+  .main__centerblock {
+    padding: 15px 20px;
+  }
+
+  .main__sidebar {
+    padding: 15px 20px;
+  }
+
+  .sidebar__list {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .sidebar__item {
+    width: 100%;
+    max-width: 300px;
+    height: 150px;
+  }
+
+  .centerblock__h2 {
+    font-size: 28px;
+    line-height: 36px;
+    margin-bottom: 25px;
+  }
+
+  .centerblock__filter {
+    margin-bottom: 30px;
+  }
+
+  .filter__title {
+    width: 100%;
+    margin-bottom: 10px;
+    margin-right: 0;
+  }
+
+  .filter__button {
+    font-size: 14px;
+    padding: 5px 15px;
+  }
+
+  .content__title {
+    display: none; /* Скрываем заголовки колонок на мобильных */
+  }
+
+  .playlist__track {
+    flex-wrap: wrap;
+    padding: 15px 0;
+    border-bottom: 1px solid #2e2e2e;
+  }
+
+  .track__title {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .track__author {
+    width: 60%;
+    order: 2;
+  }
+
+  .track__album {
+    width: 40%;
+    order: 3;
+    text-align: right;
+  }
+
+  .track__time {
+    width: 100%;
+    order: 4;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .track__time-text {
+    order: 2;
+  }
+
+  .track__time-svg {
+    order: 1;
+    margin-right: 0;
+  }
+
+  .track__title-link,
+  .track__author-link,
+  .track__album-link {
+    font-size: 14px;
+  }
+
+  /* Адаптация плеера для мобильных */
+  .bar__player-block {
+    padding: 10px 15px;
+  }
+
+  .player__controls {
+    padding: 0 15px 0 0;
+  }
+
+  .player__btn-prev {
+    margin-right: 15px;
+  }
+
+  .player__btn-play {
+    margin-right: 15px;
+  }
+
+  .player__btn-next {
+    margin-right: 20px;
+  }
+
+  .player__btn-repeat {
+    margin-right: 15px;
+  }
+
+  .track-play__contain {
+    display: none; /* Скрываем информацию о треке на мобильных */
+  }
+
+  .track-play__like-dis {
+    margin-left: 0;
+  }
+
+  .volume__progress {
+    width: 80px;
+  }
+
+  .volume__progress-line {
+    width: 80px;
+  }
+}
+
+/* Маленькие мобильные (до 575px) */
+@media (max-width: 575px) {
+  .search__text {
+    font-size: 14px;
+    padding: 10px 8px;
+  }
+
+  .search__text::placeholder {
+    font-size: 14px;
+  }
+
+  .main__centerblock {
+    padding: 10px 15px;
+  }
+
+  .main__sidebar {
+    padding: 10px 15px;
+  }
+
+  .centerblock__h2 {
+    font-size: 24px;
+    line-height: 32px;
+    margin-bottom: 20px;
+  }
+
+  .filter__button {
+    font-size: 12px;
+    padding: 4px 12px;
+  }
+
+  .sidebar__item {
+    height: 120px;
+  }
+
+  .playlist__track {
+    padding: 12px 0;
+  }
+
+  .track__title-image {
+    width: 40px;
+    height: 40px;
+    padding: 12px;
+    margin-right: 12px;
+  }
+
+  .track__title-svg {
+    width: 16px;
+    height: 15px;
+  }
+
+  .track__author {
+    width: 100%;
+    order: 2;
+    margin-bottom: 5px;
+  }
+
+  .track__album {
+    width: 100%;
+    order: 3;
+    text-align: left;
+  }
+
+  .track__time {
+    order: 4;
+  }
+
+  .track__title-link,
+  .track__author-link,
+  .track__album-link {
+    font-size: 13px;
+  }
+
+  .track__time-text {
+    font-size: 13px;
+  }
+
+  /* Адаптация плеера для маленьких мобильных */
+  .bar__player-block {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .player__controls {
+    padding: 0 10px 0 0;
+  }
+
+  .player__btn-prev,
+  .player__btn-play,
+  .player__btn-next,
+  .player__btn-repeat,
+  .player__btn-shuffle {
+    padding: 3px;
+  }
+
+  .player__btn-prev {
+    margin-right: 10px;
+  }
+
+  .player__btn-play {
+    margin-right: 10px;
+  }
+
+  .player__btn-next {
+    margin-right: 15px;
+  }
+
+  .player__btn-repeat {
+    margin-right: 10px;
+  }
+
+  .player__btn-play-svg {
+    width: 18px;
+    height: 16px;
+  }
+
+  .track-play__like-dis {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .volume__content {
+    justify-content: center;
+  }
+
+  .volume__image {
+    margin-right: 10px;
+  }
+
+  .volume__progress {
+    width: 60px;
+  }
+
+  .volume__progress-line {
+    width: 60px;
+  }
+}
+
+/* Очень маленькие экраны (до 360px) */
+@media (max-width: 360px) {
+  .main__centerblock {
+    padding: 8px 10px;
+  }
+
+  .main__sidebar {
+    padding: 8px 10px;
+  }
+
+  .centerblock__h2 {
+    font-size: 20px;
+    line-height: 28px;
+  }
+
+  .filter__button {
+    font-size: 11px;
+    padding: 3px 10px;
+  }
+
+  .sidebar__item {
+    height: 100px;
+  }
+
+  .bar__player-block {
+    padding: 5px 8px;
+  }
+
+  .player__controls {
+    padding: 0 5px 0 0;
+  }
+
+  .player__btn-prev {
+    margin-right: 5px;
+  }
+
+  .player__btn-play {
+    margin-right: 5px;
+  }
+
+  .player__btn-next {
+    margin-right: 10px;
+  }
+
+  .player__btn-repeat {
+    margin-right: 5px;
+  }
+}
+
+/* Поддержка landscape ориентации на мобильных */
+@media (max-height: 500px) and (orientation: landscape) {
+  .main__centerblock {
+    padding: 10px 20px;
+  }
+
+  .main__sidebar {
+    display: none; /* Скрываем сайдбар в landscape */
+  }
+
+  .content__playlist {
+    max-height: 40vh;
+  }
+
+  .centerblock__h2 {
+    font-size: 20px;
+    line-height: 28px;
+    margin-bottom: 15px;
+  }
+
+  .centerblock__filter {
+    margin-bottom: 15px;
+  }
+}
+
+/* Поддержка темной темы системных настроек */
+@media (prefers-color-scheme: dark) {
+  .container {
+    background-color: #181818;
+  }
+}
+
+/* Поддержка редукции движения */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Улучшение доступности для высококонтрастных режимов */
+@media (prefers-contrast: high) {
+  .track__time-svg.active {
+    stroke: #ffffff;
+    fill: #ffffff;
+  }
+
+  .filter__button:hover {
+    border-color: #ffffff;
+    color: #ffffff;
+  }
+}
+
+/* Стили для desktop-only элементов */
+.desktop-only {
+  display: flex;
+}
+
+@media (max-width: 991px) {
+  .desktop-only {
+    display: none;
+  }
+}
