@@ -2,40 +2,33 @@
   <div class="wrapper">
     <div class="container">
       <div class="top-container">
-        <LayoutNavbar />
-
-        <div class="centerblock__search search">
-          <svg class="search__svg">
-            <use xlink:href="/img/icon/sprite.svg#icon-search"></use>
-          </svg>
-          <input
-            class="search__text"
-            type="search"
-            placeholder="Поиск"
-            name="search"
-            v-model="searchQuery"
-            @input="handleSearch"
-          />
-          <div v-if="searchQuery" class="search-clear" @click="clearSearch">
-            ×
-          </div>
+        <!-- Логотип и бургер вместе -->
+        <div class="top-left">
+          <LayoutNavbar />
         </div>
 
-        <div class="sidebar__personal">
-          <p class="sidebar__personal-name">
-            {{ userName }}
-          </p>
-          <div class="sidebar__icon" @click="logout">
-            <svg>
-              <use xlink:href="/img/icon/sprite.svg#logout"></use>
-            </svg>
+        <!-- Поиск отдельно -->
+        <div class="top-center">
+          <TracksSearch v-model="searchQuery" @search="handleSearch" />
+        </div>
+
+        <!-- Иконка выхода отдельно -->
+        <div class="top-right">
+          <div class="sidebar__personal">
+            <div class="sidebar__icon" @click="logout">
+              <svg>
+                <use xlink:href="/img/icon/sprite.svg#logout" />
+              </svg>
+            </div>
           </div>
         </div>
       </div>
 
       <main class="main">
+        <!-- ОСНОВНОЙ ЦЕНТРАЛЬНЫЙ БЛОК -->
         <div class="main__centerblock centerblock">
           <h2 class="centerblock__h2">Треки</h2>
+          
           <div class="centerblock__filter filter">
             <div class="filter__title">Искать по:</div>
             <div
@@ -57,14 +50,17 @@
               жанру
             </div>
           </div>
+
           <TracksTrackList
             :tracks="filteredTracks"
             @play="handlePlayTrack"
             @toggle-favorite="handleToggleFavorite"
           />
         </div>
+
         <LayoutSidebar />
       </main>
+
       <LayoutPlayer />
     </div>
   </div>
@@ -169,9 +165,8 @@ const tracksData = [
   },
 ];
 
-const tracks = ref([]);
+const tracks = ref(tracksData);
 const searchQuery = ref("");
-const userName = ref("Гость");
 
 const filteredTracks = computed(() => {
   if (!searchQuery.value) return tracks.value;
@@ -185,10 +180,6 @@ const filteredTracks = computed(() => {
   );
 });
 
-onMounted(() => {
-  tracks.value = tracksData;
-});
-
 const handlePlayTrack = (track) => {
   console.log("Play track", track);
 };
@@ -197,12 +188,8 @@ const handleToggleFavorite = (track) => {
   console.log("Toggle favorite", track);
 };
 
-const handleSearch = () => {
-  // Поиск уже работает через computed свойство
-};
-
-const clearSearch = () => {
-  searchQuery.value = "";
+const handleSearch = (query) => {
+  searchQuery.value = query;
 };
 
 const filterByAuthor = () => {

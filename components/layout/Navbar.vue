@@ -2,7 +2,7 @@
   <nav class="main__nav nav">
     <div class="nav__logo logo">
       <NuxtLink to="/">
-        <img class="logo__image" src="/img/logo.png" alt="Logo" />
+        <img class="logo__image" src="/img/logo.png" alt="Logo">
       </NuxtLink>
     </div>
     <div
@@ -10,9 +10,9 @@
       :class="{ 'burger--active': isMenuOpen }"
       @click="toggleMenu"
     >
-      <span class="burger__line"></span>
-      <span class="burger__line"></span>
-      <span class="burger__line"></span>
+      <span class="burger__line"/>
+      <span class="burger__line"/>
+      <span class="burger__line"/>
     </div>
     <div
       class="nav__menu menu"
@@ -74,12 +74,14 @@ onUnmounted(() => {
 <style scoped>
 .nav {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   position: relative;
+  flex-direction: column;
 }
 
 .nav__logo {
   margin-right: auto;
+  margin-bottom: 46px;
 }
 
 .logo__image {
@@ -87,7 +89,6 @@ onUnmounted(() => {
   height: 17px;
 }
 
-/* Бургер всегда виден */
 .nav__burger {
   display: flex;
   flex-direction: column;
@@ -98,7 +99,6 @@ onUnmounted(() => {
   padding: 0;
   background: none;
   border: none;
-  margin-left: auto;
   z-index: 1002;
   position: relative;
 }
@@ -108,27 +108,14 @@ onUnmounted(() => {
   width: 100%;
   height: 2px;
   background-color: #ffffff;
-  transition: all 0.3s ease;
 }
 
-.burger--active .burger__line:nth-child(1) {
-  transform: rotate(45deg) translate(6px, 6px);
-}
-
-.burger--active .burger__line:nth-child(2) {
-  opacity: 0;
-}
-
-.burger--active .burger__line:nth-child(3) {
-  transform: rotate(-45deg) translate(6px, -6px);
-}
-
-/* Меню скрыто по умолчанию */
+/* Меню раскрывается вправо */
 .nav__menu {
   display: none;
   position: absolute;
   top: 100%;
-  right: 0;
+  left: 0; /* Меню раскрывается вправо от бургера */
   background-color: #181818;
   border: 1px solid #4e4e4e;
   border-radius: 8px;
@@ -138,7 +125,6 @@ onUnmounted(() => {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Когда меню активно */
 .nav__menu.menu--active {
   display: block;
 }
@@ -177,14 +163,22 @@ onUnmounted(() => {
   border-bottom: none;
 }
 
-/* Стили для активной ссылки */
 .menu__link.router-link-active,
 .menu__link.nuxt-link-active {
   color: #b672ff;
 }
 
-/* Адаптивность для мобильных */
 @media (max-width: 767px) {
+  .nav {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .nav__logo {
+    margin-bottom: 0;
+    margin-right: auto;
+  }
+
   .nav__menu {
     position: fixed;
     top: 70px;
