@@ -20,21 +20,21 @@
 defineProps({
   modelValue: {
     type: String,
-    default: ''
-  }
+    default: "",
+  },
 });
 
-const emit = defineEmits(['update:modelValue', 'search']);
+const emit = defineEmits(["update:modelValue", "search"]);
 
 const handleInput = (event) => {
   const value = event.target.value;
-  emit('update:modelValue', value);
-  emit('search', value);
+  emit("update:modelValue", value);
+  emit("search", value);
 };
 
 const clearSearch = () => {
-  emit('update:modelValue', '');
-  emit('search', '');
+  emit("update:modelValue", "");
+  emit("search", "");
 };
 </script>
 
@@ -98,7 +98,7 @@ const clearSearch = () => {
     width: 100%;
     max-width: 300px;
   }
-  
+
   .search__text {
     width: 100%;
   }

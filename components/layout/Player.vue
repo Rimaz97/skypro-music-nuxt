@@ -15,7 +15,7 @@
           <div class="player__controls">
             <div class="player__btn-prev" @click="previousTrack">
               <svg class="player__btn-prev-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-prev"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-prev" />
               </svg>
             </div>
 
@@ -33,7 +33,7 @@
 
             <div class="player__btn-next" @click="nextTrack">
               <svg class="player__btn-next-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-next"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-next" />
               </svg>
             </div>
 
@@ -43,7 +43,7 @@
               @click="toggleRepeat"
             >
               <svg class="player__btn-repeat-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-repeat"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-repeat" />
               </svg>
             </div>
 
@@ -51,10 +51,9 @@
               class="player__btn-shuffle _btn-icon"
               :class="{ active: isShuffled }"
               @click="toggleShuffle"
-
             >
               <svg class="player__btn-shuffle-svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-shuffle"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-shuffle" />
               </svg>
             </div>
           </div>
@@ -63,7 +62,7 @@
             <div class="track-play__contain">
               <div class="track-play__image">
                 <svg class="track-play__svg">
-                  <use xlink:href="/img/icon/sprite.svg#icon-note"/>
+                  <use xlink:href="/img/icon/sprite.svg#icon-note" />
                 </svg>
               </div>
               <div class="track-play__author">
@@ -84,7 +83,7 @@
                   class="track-play__like-svg"
                   :class="{ active: isTrackLiked }"
                 >
-                  <use xlink:href="/img/icon/sprite.svg#icon-like"/>
+                  <use xlink:href="/img/icon/sprite.svg#icon-like" />
                 </svg>
               </div>
             </div>
@@ -95,7 +94,7 @@
           <div class="volume__content">
             <div class="volume__image">
               <svg class="volume__svg">
-                <use xlink:href="/img/icon/sprite.svg#icon-volume"/>
+                <use xlink:href="/img/icon/sprite.svg#icon-volume" />
               </svg>
             </div>
             <div class="volume__progress _btn">
@@ -451,5 +450,4 @@ const seekToPosition = () => {
   width: 109px;
   cursor: pointer;
 }
-
 </style>

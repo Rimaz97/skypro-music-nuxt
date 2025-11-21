@@ -10,9 +10,9 @@
       :class="{ 'burger--active': isMenuOpen }"
       @click="toggleMenu"
     >
-      <span class="burger__line"/>
-      <span class="burger__line"/>
-      <span class="burger__line"/>
+      <span class="burger__line" />
+      <span class="burger__line" />
+      <span class="burger__line" />
     </div>
     <div
       class="nav__menu menu"
@@ -173,7 +173,7 @@ onUnmounted(() => {
     flex-direction: row;
     align-items: center;
   }
-  
+
   .nav__logo {
     margin-bottom: 0;
     margin-right: auto;
