@@ -9,16 +9,22 @@
         </div>
         <div class="track__title-text">
           <a class="track__title-link" href="#">
-            {{ track.title }}
-            <span class="track__title-span">{{ track.remix }}</span>
+            {{ track.name || "Без названия" }}
+            <span v-if="track.remix" class="track__title-span">{{
+              track.remix
+            }}</span>
           </a>
         </div>
       </div>
       <div class="track__author">
-        <a class="track__author-link" href="#">{{ track.artist }}</a>
+        <a class="track__author-link" href="#">{{
+          track.author || "Неизвестен"
+        }}</a>
       </div>
       <div class="track__album">
-        <a class="track__album-link" href="#">{{ track.album }}</a>
+        <a class="track__album-link" href="#">{{
+          track.album || "Без альбома"
+        }}</a>
       </div>
       <div class="track__time">
         <svg
@@ -28,7 +34,9 @@
         >
           <use xlink:href="/img/icon/sprite.svg#icon-like" />
         </svg>
-        <span class="track__time-text">{{ track.duration }}</span>
+        <span class="track__time-text">{{
+          formatDuration(track.duration_in_seconds)
+        }}</span>
       </div>
     </div>
   </div>
@@ -46,6 +54,14 @@ defineEmits(["play", "toggle-favorite"]);
 
 // Временная заглушка для избранного
 const isFavorite = ref(false);
+
+// Функция форматирования длительности
+const formatDuration = (seconds) => {
+  if (!seconds) return "0:00";
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
 </script>
 
 <style scoped>
