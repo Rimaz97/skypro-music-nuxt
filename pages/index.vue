@@ -190,12 +190,12 @@
           </div>
 
           <!-- Состояния загрузки и ошибки -->
-          <div v-if="loading" class="content__playlist playlist">
+          <div v-if="pending" class="content__playlist playlist">
             <div class="loading">Загрузка треков...</div>
           </div>
 
           <div v-else-if="error" class="content__playlist playlist">
-            <div class="error">Ошибка загрузки треков: {{ error }}</div>
+            <div class="error">Ошибка загрузки треков: {{ error.message }}</div>
           </div>
 
           <!-- Список треков -->
@@ -213,9 +213,8 @@
             <div class="content__playlist playlist">
               <TracksTrackItem
                 v-for="track in filteredTracks"
-                :key="track.id || track._id"
+                :key="track._id"
                 :track="track"
-                @play="handlePlayTrack"
                 @toggle-favorite="handleToggleFavorite"
               />
             </div>
@@ -231,41 +230,24 @@
 </template>
 
 <script setup>
-const tracks = ref([]);
-const loading = ref(false);
-const error = ref(null);
+// Используем useFetch для загрузки треков
+const {
+  data: response,
+  pending,
+  error,
+} = await useFetch(
+  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
+);
+
+// Если в value нет data, то записываем в tracks пустой массив
+const tracks = computed(() => response.value?.data || []);
+
 const searchQuery = ref("");
 const activeFilter = ref(null);
 const selectedFilters = ref({
   author: null,
   year: null,
   genre: null,
-});
-
-// Загружаем треки на клиенте
-const loadTracks = async () => {
-  loading.value = true;
-  error.value = null;
-  try {
-    const response = await fetch(
-      "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
-    );
-    if (!response.ok) {
-      throw new Error("Не удалось получить треки");
-    }
-    const data = await response.json();
-    tracks.value = data.data;
-  } catch (e) {
-    error.value =
-      e instanceof Error ? e.message : "Ошибка при загрузке треков :(";
-  } finally {
-    loading.value = false;
-  }
-};
-
-// Загружаем треки при монтировании компонента
-onMounted(() => {
-  loadTracks();
 });
 
 // Фильтрация по поиску и выбранным фильтрам
@@ -403,10 +385,6 @@ onUnmounted(() => {
 });
 
 // Остальные методы
-const handlePlayTrack = (track) => {
-  console.log("Play track", track);
-};
-
 const handleToggleFavorite = (track) => {
   console.log("Toggle favorite", track);
 };
@@ -416,7 +394,6 @@ const handleSearch = (query) => {
 };
 
 const logout = () => {
-  console.log("Logout");
   navigateTo("/login");
 };
 </script>

@@ -1,11 +1,17 @@
 <template>
-  <div class="playlist__item">
+  <div class="playlist__item" @click="playThisTrack">
     <div class="playlist__track track">
       <div class="track__title">
-        <div class="track__title-image" @click="$emit('play', track)">
+        <div class="track__title-image">
           <svg class="track__title-svg">
             <use xlink:href="/img/icon/sprite.svg#icon-note" />
           </svg>
+          <!-- Фиолетовая точка для текущего трека -->
+          <div
+            v-if="isCurrentTrack"
+            class="track__status-dot"
+            :class="{ pulsating: isPlaying }"
+          />
         </div>
         <div class="track__title-text">
           <a class="track__title-link" href="#">
@@ -30,7 +36,7 @@
         <svg
           class="track__time-svg"
           :class="{ active: isFavorite }"
-          @click="$emit('toggle-favorite', track)"
+          @click.stop="toggleFavorite"
         >
           <use xlink:href="/img/icon/sprite.svg#icon-like" />
         </svg>
@@ -43,17 +49,36 @@
 </template>
 
 <script setup>
-defineProps({
+import { usePlayerStore } from "~/stores/player";
+import { useAudioPlayer } from "~/composables/useAudioPlayer";
+
+const playerStore = usePlayerStore();
+const { playTrack } = useAudioPlayer();
+
+const props = defineProps({
   track: {
     type: Object,
     required: true,
   },
 });
 
-defineEmits(["play", "toggle-favorite"]);
+const emit = defineEmits(["toggle-favorite"]);
 
 // Временная заглушка для избранного
 const isFavorite = ref(false);
+
+// Проверяем, является ли этот трек текущим
+const isCurrentTrack = computed(() => {
+  const currentTrackId =
+    playerStore.currentTrack?._id || playerStore.currentTrack?.id;
+  const trackId = props.track._id || props.track.id;
+  return currentTrackId === trackId;
+});
+
+// Проверяем, воспроизводится ли текущий трек
+const isPlaying = computed(() => {
+  return isCurrentTrack.value && playerStore.isPlaying;
+});
 
 // Функция форматирования длительности
 const formatDuration = (seconds) => {
@@ -62,6 +87,20 @@ const formatDuration = (seconds) => {
   const secs = seconds % 60;
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
+
+// Воспроизведение трека при клике на строку
+const playThisTrack = (event) => {
+  // Если клик был на кнопке лайка, то не воспроизводим трек
+  if (event.target.closest(".track__time-svg")) {
+    return;
+  }
+  playTrack(props.track);
+};
+
+const toggleFavorite = () => {
+  isFavorite.value = !isFavorite.value;
+  emit("toggle-favorite", props.track);
+};
 </script>
 
 <style scoped>
@@ -69,6 +108,7 @@ const formatDuration = (seconds) => {
   width: 100%;
   display: block;
   margin-bottom: 12px;
+  cursor: pointer;
 }
 
 .playlist__track {
@@ -100,7 +140,7 @@ const formatDuration = (seconds) => {
   align-items: center;
   justify-content: center;
   margin-right: 17px;
-  cursor: pointer;
+  position: relative;
   flex-shrink: 0;
 }
 
@@ -197,5 +237,39 @@ const formatDuration = (seconds) => {
   text-align: right;
   color: #696969;
   flex-shrink: 0;
+}
+
+/* Стили для фиолетовой точки */
+.track__status-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  background-color: #b672ff;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.track__status-dot.pulsating {
+  opacity: 1;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 0.8;
+  }
 }
 </style>

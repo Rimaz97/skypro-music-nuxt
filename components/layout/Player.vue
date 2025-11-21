@@ -1,11 +1,11 @@
 <template>
   <div class="bar">
     <div class="bar__content">
-      <div class="bar__player-progress" @click="seekToPosition">
+      <div class="bar__player-progress" @click="handleProgressClick">
         <div class="progress-bar">
           <div
             class="progress-filled"
-            :style="{ width: progressPercentage + '%' }"
+            :style="{ width: playerStore.progress + '%' }"
           />
         </div>
       </div>
@@ -19,11 +19,11 @@
               </svg>
             </div>
 
-            <div class="player__btn-play _btn" @click="togglePlay">
+            <div class="player__btn-play _btn" @click="handlePlay">
               <svg class="player__btn-play-svg">
                 <use
                   :xlink:href="
-                    isPlaying
+                    playerStore.isPlaying
                       ? '/img/icon/sprite.svg#icon-pause'
                       : '/img/icon/sprite.svg#icon-play'
                   "
@@ -66,14 +66,22 @@
                 </svg>
               </div>
               <div class="track-play__author">
-                <a class="track-play__author-link" href="#">{{
-                  currentTrack?.artist || "Выберите трек"
-                }}</a>
+                <a class="track-play__author-link" href="#">
+                  {{
+                    playerStore.currentTrack?.artist ||
+                    playerStore.currentTrack?.author ||
+                    "Выберите трек"
+                  }}
+                </a>
               </div>
               <div class="track-play__album">
-                <a class="track-play__album-link" href="#">{{
-                  currentTrack?.title || "Нет трека"
-                }}</a>
+                <a class="track-play__album-link" href="#">
+                  {{
+                    playerStore.currentTrack?.name ||
+                    playerStore.currentTrack?.title ||
+                    ""
+                  }}
+                </a>
               </div>
             </div>
 
@@ -99,67 +107,89 @@
             </div>
             <div class="volume__progress _btn">
               <input
+                v-model="playerStore.volume"
                 class="volume__progress-line _btn"
                 type="range"
                 min="0"
-                max="1"
-                step="0.1"
-                :value="volume"
-                @input="setVolume($event.target.value)"
+                max="100"
+                @input="updateVolume"
               >
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Скрытый аудио элемент -->
+    <audio
+      ref="audioRef"
+      @timeupdate="handleTimeUpdate"
+      @ended="handleTrackEnd"
+    />
   </div>
 </template>
 
 <script setup>
-// Временная заглушка для плеера - позже добавим полноценную логику
-const currentTrack = ref(null); // Оставляем null по умолчанию
-const isPlaying = ref(false);
+import { usePlayerStore } from "~/stores/player";
+import { useAudioPlayer } from "~/composables/useAudioPlayer";
+
+const playerStore = usePlayerStore();
+const audioRef = ref(null);
+
+// Получаем функции из composable
+const { initPlayer, handleTimeUpdate, handleTrackEnd, seekTo, updateVolume } =
+  useAudioPlayer();
+
+// Локальные состояния для кнопок
 const isRepeating = ref(false);
 const isShuffled = ref(false);
-const volume = ref(0.5);
-const progressPercentage = ref(0);
 const isTrackLiked = ref(false);
 
-const togglePlay = () => {
-  isPlaying.value = !isPlaying.value;
-  console.log("Toggle play");
+// Инициализируем плеер при монтировании
+onMounted(() => {
+  if (audioRef.value) {
+    initPlayer(audioRef.value);
+  }
+});
+
+// Обработчик клика по кнопке play
+const handlePlay = () => {
+  if (playerStore.currentTrack) {
+    playerStore.togglePlay();
+  }
 };
 
+// Обработчик клика по прогресс-бару
+const handleProgressClick = (event) => {
+  if (!playerStore.currentTrack) return;
+
+  const progressBar = event.currentTarget;
+  const clickPosition = event.offsetX;
+  const progressBarWidth = progressBar.offsetWidth;
+  const percentage = (clickPosition / progressBarWidth) * 100;
+
+  seekTo(percentage);
+};
+
+// Остальные методы (заглушки)
 const toggleRepeat = () => {
   isRepeating.value = !isRepeating.value;
-  console.log("Toggle repeat");
 };
 
 const toggleShuffle = () => {
   isShuffled.value = !isShuffled.value;
-  console.log("Toggle shuffle");
 };
 
 const nextTrack = () => {
-  console.log("Next track");
+  // Заглушка для следующего трека
 };
 
 const previousTrack = () => {
-  console.log("Previous track");
-};
-
-const setVolume = (value) => {
-  volume.value = parseFloat(value);
-  console.log("Set volume:", volume.value);
+  // Заглушка для предыдущего трека
 };
 
 const toggleLike = () => {
   isTrackLiked.value = !isTrackLiked.value;
-  console.log("Toggle like");
-};
-
-const seekToPosition = () => {
-  console.log("Seek to position");
 };
 </script>
 
