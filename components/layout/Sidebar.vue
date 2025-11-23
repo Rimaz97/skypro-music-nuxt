@@ -3,31 +3,31 @@
     <div class="sidebar__block">
       <div class="sidebar__list">
         <div class="sidebar__item">
-          <a class="sidebar__link" href="#">
+          <NuxtLink class="sidebar__link" to="/playlist/1">
             <img
               class="sidebar__img"
               src="/img/playlist01.png"
               alt="day's playlist"
             >
-          </a>
+          </NuxtLink>
         </div>
         <div class="sidebar__item">
-          <a class="sidebar__link" href="#">
+          <NuxtLink class="sidebar__link" to="/playlist/2">
             <img
               class="sidebar__img"
               src="/img/playlist02.png"
               alt="day's playlist"
             >
-          </a>
+          </NuxtLink>
         </div>
         <div class="sidebar__item">
-          <a class="sidebar__link" href="#">
+          <NuxtLink class="sidebar__link" to="/playlist/3">
             <img
               class="sidebar__img"
               src="/img/playlist03.png"
               alt="day's playlist"
             >
-          </a>
+          </NuxtLink>
         </div>
       </div>
     </div>

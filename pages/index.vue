@@ -1,236 +1,274 @@
 <template>
-  <div class="wrapper">
-    <div class="container">
-      <div class="top-container">
-        <div class="top-left">
-          <LayoutNavbar />
-        </div>
+  <div>
+    <h2 class="centerblock__h2">Треки</h2>
 
-        <div class="top-center">
-          <TracksSearch v-model="searchQuery" @search="handleSearch" />
-        </div>
-
-        <div class="top-right">
-          <div class="sidebar__personal">
-            <div class="sidebar__icon" @click="logout">
-              <svg>
-                <use xlink:href="/img/icon/sprite.svg#logout" />
-              </svg>
-            </div>
-          </div>
+    <!-- Блок сортировки и фильтров -->
+    <div class="centerblock__top">
+      <!-- Сортировка -->
+      <div class="centerblock__filter filter">
+        <div class="filter__title">Сортировка:</div>
+        <div class="sort__buttons">
+          <button
+            class="filter__button _btn-text"
+            :class="{
+              active: sortStore.currentSort === 'default',
+              'filter__button--selected': sortStore.currentSort === 'default',
+            }"
+            @click="sortStore.setSort('default')"
+          >
+            по умолчанию
+          </button>
+          <button
+            class="filter__button _btn-text"
+            :class="{
+              active: sortStore.currentSort === 'newest',
+              'filter__button--selected': sortStore.currentSort === 'newest',
+            }"
+            @click="sortStore.setSort('newest')"
+          >
+            сначала новые
+          </button>
+          <button
+            class="filter__button _btn-text"
+            :class="{
+              active: sortStore.currentSort === 'oldest',
+              'filter__button--selected': sortStore.currentSort === 'oldest',
+            }"
+            @click="sortStore.setSort('oldest')"
+          >
+            сначала старые
+          </button>
         </div>
       </div>
 
-      <main class="main">
-        <div class="main__centerblock centerblock">
-          <h2 class="centerblock__h2">Треки</h2>
+      <!-- Фильтры -->
+      <div class="centerblock__filter filter">
+        <div class="filter__title">Искать по:</div>
 
-          <!-- Фильтры -->
-          <div class="centerblock__filter filter">
-            <div class="filter__title">Искать по:</div>
-
-            <!-- Фильтр по исполнителю -->
-            <div class="filter__wrapper">
-              <div
-                class="filter__button button-author _btn-text"
-                :class="{
-                  active: activeFilter === 'author',
-                  'filter__button--selected': selectedFilters.author,
-                }"
-                @click="toggleFilter('author')"
-              >
-                исполнителю
-                <span
-                  v-if="selectedFilters.author"
-                  class="filter__selected-dot"
-                />
-              </div>
-              <div v-show="activeFilter === 'author'" class="filter__dropdown">
-                <ul class="filter__list">
-                  <li
-                    v-for="item in authorItems"
-                    :key="item"
-                    class="filter__item"
-                    :class="{ active: selectedFilters.author === item }"
-                    @click="selectFilter('author', item)"
-                  >
-                    {{ item }}
-                    <span
-                      v-if="selectedFilters.author === item"
-                      class="filter__check"
-                      >✓</span
-                    >
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <!-- Фильтр по году -->
-            <div class="filter__wrapper">
-              <div
-                class="filter__button button-year _btn-text"
-                :class="{
-                  active: activeFilter === 'year',
-                  'filter__button--selected': selectedFilters.year,
-                }"
-                @click="toggleFilter('year')"
-              >
-                году выпуска
-                <span
-                  v-if="selectedFilters.year"
-                  class="filter__selected-dot"
-                />
-              </div>
-              <div v-show="activeFilter === 'year'" class="filter__dropdown">
-                <ul class="filter__list">
-                  <li
-                    v-for="item in yearItems"
-                    :key="item"
-                    class="filter__item"
-                    :class="{ active: selectedFilters.year === item }"
-                    @click="selectFilter('year', item)"
-                  >
-                    {{ item }}
-                    <span
-                      v-if="selectedFilters.year === item"
-                      class="filter__check"
-                      >✓</span
-                    >
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <!-- Фильтр по жанру -->
-            <div class="filter__wrapper">
-              <div
-                class="filter__button button-genre _btn-text"
-                :class="{
-                  active: activeFilter === 'genre',
-                  'filter__button--selected': selectedFilters.genre,
-                }"
-                @click="toggleFilter('genre')"
-              >
-                жанру
-                <span
-                  v-if="selectedFilters.genre"
-                  class="filter__selected-dot"
-                />
-              </div>
-              <div v-show="activeFilter === 'genre'" class="filter__dropdown">
-                <ul class="filter__list">
-                  <li
-                    v-for="item in genreItems"
-                    :key="item"
-                    class="filter__item"
-                    :class="{ active: selectedFilters.genre === item }"
-                    @click="selectFilter('genre', item)"
-                  >
-                    {{ item }}
-                    <span
-                      v-if="selectedFilters.genre === item"
-                      class="filter__check"
-                      >✓</span
-                    >
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <!-- Кнопка сброса фильтров -->
-            <div
-              v-if="
-                selectedFilters.author ||
-                selectedFilters.year ||
-                selectedFilters.genre
-              "
-              class="filter__reset _btn-text"
-              @click="resetFilters"
-            >
-              сбросить фильтры
-            </div>
-          </div>
-
-          <!-- Показать активные фильтры -->
+        <!-- Фильтр по исполнителю -->
+        <div class="filter__wrapper">
           <div
-            v-if="
-              selectedFilters.author ||
-              selectedFilters.year ||
-              selectedFilters.genre
-            "
-            class="active-filters"
+            class="filter__button button-author _btn-text"
+            :class="{
+              active: filtersStore.activeFilter === 'author',
+              'filter__button--selected': filtersStore.filterCounts.author > 0,
+            }"
+            @click="filtersStore.setActiveFilter('author')"
           >
-            <div class="active-filters__title">Активные фильтры:</div>
-            <div class="active-filters__list">
-              <span v-if="selectedFilters.author" class="active-filter">
-                Исполнитель: {{ selectedFilters.author }}
-                <span
-                  class="active-filter__remove"
-                  @click="selectFilter('author', selectedFilters.author)"
-                  >×</span
-                >
-              </span>
-              <span v-if="selectedFilters.year" class="active-filter">
-                Год: {{ selectedFilters.year }}
-                <span
-                  class="active-filter__remove"
-                  @click="selectFilter('year', selectedFilters.year)"
-                  >×</span
-                >
-              </span>
-              <span v-if="selectedFilters.genre" class="active-filter">
-                Жанр: {{ selectedFilters.genre }}
-                <span
-                  class="active-filter__remove"
-                  @click="selectFilter('genre', selectedFilters.genre)"
-                  >×</span
-                >
-              </span>
-            </div>
+            исполнителю
+            <span
+              v-if="filtersStore.filterCounts.author > 0"
+              class="filter__count"
+            >
+              {{ filtersStore.filterCounts.author }}
+            </span>
           </div>
-
-          <!-- Состояния загрузки и ошибки -->
-          <div v-if="pending" class="content__playlist playlist">
-            <div class="loading">Загрузка треков...</div>
-          </div>
-
-          <div v-else-if="error" class="content__playlist playlist">
-            <div class="error">Ошибка загрузки треков: {{ error.message }}</div>
-          </div>
-
-          <!-- Список треков -->
-          <div v-else class="centerblock__content playlist-content">
-            <div class="content__title playlist-title">
-              <div class="playlist-title__col col01">Трек</div>
-              <div class="playlist-title__col col02">Исполнитель</div>
-              <div class="playlist-title__col col03">Альбом</div>
-              <div class="playlist-title__col col04">
-                <svg class="playlist-title__svg">
-                  <use xlink:href="/img/icon/sprite.svg#icon-watch" />
-                </svg>
-              </div>
-            </div>
-            <div class="content__playlist playlist">
-              <TracksTrackItem
-                v-for="track in filteredTracks"
-                :key="track._id"
-                :track="track"
-                @toggle-favorite="handleToggleFavorite"
-              />
-            </div>
+          <div
+            v-show="filtersStore.activeFilter === 'author'"
+            class="filter__dropdown"
+          >
+            <ul class="filter__list">
+              <li
+                v-for="item in authorItems"
+                :key="item"
+                class="filter__item"
+                :class="{
+                  active: filtersStore.selectedFilters.author.includes(item),
+                }"
+                @click="filtersStore.toggleSelectedFilter('author', item)"
+              >
+                {{ item }}
+                <span
+                  v-if="filtersStore.selectedFilters.author.includes(item)"
+                  class="filter__check"
+                  >✓</span
+                >
+              </li>
+            </ul>
           </div>
         </div>
 
-        <LayoutSidebar />
-      </main>
+        <!-- Фильтр по году -->
+        <div class="filter__wrapper">
+          <div
+            class="filter__button button-year _btn-text"
+            :class="{
+              active: filtersStore.activeFilter === 'year',
+              'filter__button--selected': filtersStore.filterCounts.year > 0,
+            }"
+            @click="filtersStore.setActiveFilter('year')"
+          >
+            году выпуска
+            <span
+              v-if="filtersStore.filterCounts.year > 0"
+              class="filter__count"
+            >
+              {{ filtersStore.filterCounts.year }}
+            </span>
+          </div>
+          <div
+            v-show="filtersStore.activeFilter === 'year'"
+            class="filter__dropdown"
+          >
+            <ul class="filter__list">
+              <li
+                v-for="item in yearItems"
+                :key="item"
+                class="filter__item"
+                :class="{
+                  active: filtersStore.selectedFilters.year.includes(item),
+                }"
+                @click="filtersStore.toggleSelectedFilter('year', item)"
+              >
+                {{ item }}
+                <span
+                  v-if="filtersStore.selectedFilters.year.includes(item)"
+                  class="filter__check"
+                  >✓</span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
 
-      <LayoutPlayer />
+        <!-- Фильтр по жанру -->
+        <div class="filter__wrapper">
+          <div
+            class="filter__button button-genre _btn-text"
+            :class="{
+              active: filtersStore.activeFilter === 'genre',
+              'filter__button--selected': filtersStore.filterCounts.genre > 0,
+            }"
+            @click="filtersStore.setActiveFilter('genre')"
+          >
+            жанру
+            <span
+              v-if="filtersStore.filterCounts.genre > 0"
+              class="filter__count"
+            >
+              {{ filtersStore.filterCounts.genre }}
+            </span>
+          </div>
+          <div
+            v-show="filtersStore.activeFilter === 'genre'"
+            class="filter__dropdown"
+          >
+            <ul class="filter__list">
+              <li
+                v-for="item in genreItems"
+                :key="item"
+                class="filter__item"
+                :class="{
+                  active: filtersStore.selectedFilters.genre.includes(item),
+                }"
+                @click="filtersStore.toggleSelectedFilter('genre', item)"
+              >
+                {{ item }}
+                <span
+                  v-if="filtersStore.selectedFilters.genre.includes(item)"
+                  class="filter__check"
+                  >✓</span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Кнопка сброса фильтров -->
+        <div
+          v-if="filtersStore.hasActiveFilters"
+          class="filter__reset _btn-text"
+          @click="filtersStore.resetFilters"
+        >
+          сбросить фильтры
+        </div>
+      </div>
+    </div>
+
+    <!-- Активные фильтры -->
+    <div v-if="filtersStore.hasActiveFilters" class="active-filters">
+      <div class="active-filters__title">Активные фильтры:</div>
+      <div class="active-filters__list">
+        <span
+          v-for="author in filtersStore.selectedFilters.author"
+          :key="author"
+          class="active-filter"
+        >
+          Исполнитель: {{ author }}
+          <span
+            class="active-filter__remove"
+            @click="filtersStore.toggleSelectedFilter('author', author)"
+            >×</span
+          >
+        </span>
+        <!-- Теперь годы тоже в цикле -->
+        <span
+          v-for="year in filtersStore.selectedFilters.year"
+          :key="year"
+          class="active-filter"
+        >
+          Год: {{ year }}
+          <span
+            class="active-filter__remove"
+            @click="filtersStore.toggleSelectedFilter('year', year)"
+            >×</span
+          >
+        </span>
+        <span
+          v-for="genre in filtersStore.selectedFilters.genre"
+          :key="genre"
+          class="active-filter"
+        >
+          Жанр: {{ genre }}
+          <span
+            class="active-filter__remove"
+            @click="filtersStore.toggleSelectedFilter('genre', genre)"
+            >×</span
+          >
+        </span>
+      </div>
+    </div>
+
+    <!-- Состояния загрузки и ошибки -->
+    <div v-if="pending" class="content__playlist playlist">
+      <div class="loading">Загрузка треков...</div>
+    </div>
+
+    <div v-else-if="error" class="content__playlist playlist">
+      <div class="error">Ошибка загрузки треков: {{ error.message }}</div>
+    </div>
+
+    <!-- Список треков -->
+    <div v-else class="centerblock__content playlist-content">
+      <div class="content__title playlist-title">
+        <div class="playlist-title__col col01">Трек</div>
+        <div class="playlist-title__col col02">Исполнитель</div>
+        <div class="playlist-title__col col03">Альбом</div>
+        <div class="playlist-title__col col04">
+          <svg class="playlist-title__svg">
+            <use xlink:href="/img/icon/sprite.svg#icon-watch" />
+          </svg>
+        </div>
+      </div>
+      <div class="content__playlist playlist">
+        <TracksTrackItem
+          v-for="track in filteredTracks"
+          :key="track._id"
+          :track="track"
+          @toggle-favorite="handleToggleFavorite"
+        />
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-// Используем useFetch для загрузки треков
+// Динамический заголовок для главной страницы
+useHead({
+  title: "Главная | Skypro.Music",
+});
+
+// Загрузка треков
 const {
   data: response,
   pending,
@@ -239,140 +277,20 @@ const {
   "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
 );
 
-// Если в value нет data, то записываем в tracks пустой массив
 const tracks = computed(() => response.value?.data || []);
 
-const searchQuery = ref("");
-const activeFilter = ref(null);
-const selectedFilters = ref({
-  author: null,
-  year: null,
-  genre: null,
-});
+// Используем store для фильтров и сортировки
+const filtersStore = useFiltersStore();
+const sortStore = useSortStore();
 
-// Фильтрация по поиску и выбранным фильтрам
-const filteredTracks = computed(() => {
-  let result = tracks.value;
-
-  // Применяем текстовый поиск
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    result = result.filter(
-      (track) =>
-        track.name?.toLowerCase().includes(query) ||
-        track.author?.toLowerCase().includes(query) ||
-        track.album?.toLowerCase().includes(query)
-    );
-  }
-
-  // Применяем фильтр по автору
-  if (selectedFilters.value.author) {
-    result = result.filter(
-      (track) => track.author === selectedFilters.value.author
-    );
-  }
-
-  // Применяем фильтр по году
-  if (selectedFilters.value.year) {
-    result = result.filter((track) => {
-      const year = track.release_date?.split("-")[0] || "Неизвестно";
-      return year === selectedFilters.value.year;
-    });
-  }
-
-  // Применяем фильтр по жанру
-  if (selectedFilters.value.genre) {
-    result = result.filter((track) => {
-      if (Array.isArray(track.genre)) {
-        return track.genre.some(
-          (g) => g && g.toLowerCase().trim() === selectedFilters.value.genre
-        );
-      } else if (track.genre) {
-        return track.genre.toLowerCase().trim() === selectedFilters.value.genre;
-      }
-      return false;
-    });
-  }
-
-  return result;
-});
-
-// Управление фильтрами
-const toggleFilter = (filter) => {
-  activeFilter.value = activeFilter.value === filter ? null : filter;
-};
-
-const selectFilter = (type, value) => {
-  // Если выбираем то же значение - снимаем фильтр
-  if (selectedFilters.value[type] === value) {
-    selectedFilters.value[type] = null;
-  } else {
-    selectedFilters.value[type] = value;
-  }
-  activeFilter.value = null; // Закрываем dropdown после выбора
-};
-
-// Сброс всех фильтров
-const resetFilters = () => {
-  selectedFilters.value = {
-    author: null,
-    year: null,
-    genre: null,
-  };
-  searchQuery.value = "";
-};
-
-// Списки для фильтров
-const authorItems = computed(() => {
-  if (!tracks.value || tracks.value.length === 0) return [];
-  const items = new Set();
-  tracks.value.forEach((track) => {
-    if (track.author) {
-      items.add(track.author);
-    }
-  });
-  return Array.from(items).sort((a, b) => {
-    if (a === "Неизвестно") return 1;
-    if (b === "Неизвестно") return -1;
-    return a.localeCompare(b);
-  });
-});
-
-const yearItems = computed(() => {
-  if (!tracks.value || tracks.value.length === 0) return [];
-  const items = new Set();
-  tracks.value.forEach((track) => {
-    const year = track.release_date?.split("-")[0] || "Неизвестно";
-    items.add(year);
-  });
-  return Array.from(items).sort((a, b) => {
-    if (a === "Неизвестно") return 1;
-    if (b === "Неизвестно") return -1;
-    return b.localeCompare(a);
-  });
-});
-
-const genreItems = computed(() => {
-  if (!tracks.value || tracks.value.length === 0) return [];
-  const items = new Set();
-  tracks.value.forEach((track) => {
-    if (Array.isArray(track.genre)) {
-      track.genre.forEach((g) => g && items.add(g.toLowerCase().trim()));
-    } else if (track.genre) {
-      items.add(track.genre.toLowerCase().trim());
-    }
-  });
-  return Array.from(items).sort((a, b) => {
-    if (a === "неизвестно") return 1;
-    if (b === "неизвестно") return -1;
-    return a.localeCompare(b);
-  });
-});
+// Используем composable для фильтрации и сортировки треков
+const { filteredTracks, authorItems, yearItems, genreItems } =
+  useTrackFilters(tracks);
 
 // Закрытие фильтров при клике вне области
 const handleClickOutside = (event) => {
   if (!event.target.closest(".filter__wrapper")) {
-    activeFilter.value = null;
+    filtersStore.activeFilter = null;
   }
 };
 
@@ -384,21 +302,26 @@ onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });
 
-// Остальные методы
 const handleToggleFavorite = (track) => {
   console.log("Toggle favorite", track);
-};
-
-const handleSearch = (query) => {
-  searchQuery.value = query;
-};
-
-const logout = () => {
-  navigateTo("/login");
 };
 </script>
 
 <style scoped>
+/* Стили для сортировки */
+.centerblock__top {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.sort__buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 /* Стили для фильтров */
 .filter__wrapper {
   position: relative;
@@ -413,7 +336,7 @@ const logout = () => {
   border-radius: 12px;
   padding: 34px;
   min-width: 248px;
-  max-height: 305px;
+  max-height: 350px;
   overflow-y: auto;
   z-index: 100;
   margin-top: 10px;
@@ -426,6 +349,8 @@ const logout = () => {
   list-style: none;
   padding: 0;
   margin: 0;
+  max-height: 250px;
+  overflow-y: auto;
 }
 
 .filter__item {
@@ -452,17 +377,46 @@ const logout = () => {
   color: #b672ff;
 }
 
+.filter__button {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  border: 1px solid #ffffff;
+  border-radius: 60px;
+  padding: 6px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: transparent;
+  color: #ffffff;
+}
+
+.filter__button:hover {
+  border-color: #d9b6ff;
+  color: #d9b6ff;
+}
+
+.filter__button.active {
+  border-color: #b672ff;
+  color: #b672ff;
+}
+
 .filter__button--selected {
   border-color: #b672ff !important;
   color: #b672ff !important;
+  background: rgba(182, 114, 255, 0.1);
 }
 
-.filter__selected-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
+.filter__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
   background: #b672ff;
+  color: white;
   border-radius: 50%;
+  font-size: 12px;
   margin-left: 5px;
 }
 
@@ -479,11 +433,11 @@ const logout = () => {
 
 /* Активные фильтры */
 .active-filters {
-  margin: 15px 0 30px 294px;
+  margin: 15px 0 30px 0;
   padding: 10px;
   background: rgba(182, 114, 255, 0.1);
   border-radius: 8px;
-  max-width: calc(100% - 294px);
+  max-width: 100%;
 }
 
 .active-filters__title {
@@ -534,7 +488,7 @@ const logout = () => {
   color: #ff6b6b;
 }
 
-/* Адаптивность для фильтров */
+/* Адаптивность */
 @media (max-width: 991px) {
   .active-filters {
     margin: 15px 0 30px 0;
@@ -568,6 +522,16 @@ const logout = () => {
 
   .active-filter {
     font-size: 11px;
+  }
+
+  .sort__buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .filter__button {
+    width: 100%;
+    text-align: center;
   }
 }
 

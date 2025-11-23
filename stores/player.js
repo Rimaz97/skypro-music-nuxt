@@ -14,44 +14,37 @@ export const usePlayerStore = defineStore("player", {
     volume: 50,
     // Ссылка на аудиотег
     audioRef: null,
+    // Показывать ли плеер
+    showPlayer: false,
   }),
 
   actions: {
     // Установить текущий трек
     setCurrentTrack(track) {
-      console.log(
-        "Store: Устанавливаем текущий трек:",
-        track?.name || track?.title
-      );
+      console.log("Store: Устанавливаем текущий трек:", track?.name || track?.title);
       this.currentTrack = track;
-      console.log(
-        "Store: Текущий трек установлен:",
-        this.currentTrack?.name || this.currentTrack?.title
-      );
+      this.showPlayer = true; // Показываем плеер при выборе трека
+      console.log("Store: Текущий трек установлен:", this.currentTrack?.name || this.currentTrack?.title);
     },
 
-    // Установить плейлист
+    // Остальные действия остаются без изменений
     setPlaylist(tracks) {
       this.playlist = tracks;
     },
 
-    // Установить прогресс
     setProgress(progress) {
       this.progress = progress;
     },
 
-    // Установить громкость
     setVolume(volume) {
       this.volume = volume;
     },
 
-    // Установить состояние воспроизведения
     setPlaying(isPlaying) {
       console.log("Store: Устанавливаем состояние воспроизведения:", isPlaying);
       this.isPlaying = isPlaying;
     },
 
-    // Установить ссылку на аудиоэлемент
     setAudioRef(element) {
       if (!element) {
         console.error("Передан пустой audio элемент");
@@ -64,7 +57,6 @@ export const usePlayerStore = defineStore("player", {
       }
     },
 
-    // Переключить воспроизведение
     togglePlay() {
       console.log("Store: togglePlay вызван");
       console.log("Store: audioRef:", this.audioRef);
@@ -99,6 +91,14 @@ export const usePlayerStore = defineStore("player", {
       } catch (error) {
         console.error("Ошибка переключения воспроизведения:", error);
       }
+    },
+
+    // Скрыть плеер
+    hidePlayer() {
+      this.showPlayer = false;
+      this.currentTrack = null;
+      this.isPlaying = false;
+      this.progress = 0;
     },
   },
 });

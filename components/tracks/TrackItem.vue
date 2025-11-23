@@ -49,11 +49,9 @@
 </template>
 
 <script setup>
-import { usePlayerStore } from "~/stores/player";
-import { useAudioPlayer } from "~/composables/useAudioPlayer";
-
 const playerStore = usePlayerStore();
-const { playTrack } = useAudioPlayer();
+const favoritesStore = useFavoritesStore();
+const { initPlayer, playTrack } = useAudioPlayer();
 
 const props = defineProps({
   track: {
@@ -62,15 +60,19 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["toggle-favorite"]);
+// Загружаем избранное при монтировании
+onMounted(() => {
+  favoritesStore.loadFavorites();
+});
 
-// Временная заглушка для избранного
-const isFavorite = ref(false);
+// Сохраняем при изменении
+watch(() => favoritesStore.favoriteTracks, () => {
+  favoritesStore.saveFavorites();
+}, { deep: true });
 
 // Проверяем, является ли этот трек текущим
 const isCurrentTrack = computed(() => {
-  const currentTrackId =
-    playerStore.currentTrack?._id || playerStore.currentTrack?.id;
+  const currentTrackId = playerStore.currentTrack?._id || playerStore.currentTrack?.id;
   const trackId = props.track._id || props.track.id;
   return currentTrackId === trackId;
 });
@@ -78,6 +80,11 @@ const isCurrentTrack = computed(() => {
 // Проверяем, воспроизводится ли текущий трек
 const isPlaying = computed(() => {
   return isCurrentTrack.value && playerStore.isPlaying;
+});
+
+// Проверяем, в избранном ли трек
+const isFavorite = computed(() => {
+  return favoritesStore.isFavorite(props.track);
 });
 
 // Функция форматирования длительности
@@ -89,17 +96,22 @@ const formatDuration = (seconds) => {
 };
 
 // Воспроизведение трека при клике на строку
-const playThisTrack = (event) => {
+const playThisTrack = async (event) => {
   // Если клик был на кнопке лайка, то не воспроизводим трек
   if (event.target.closest(".track__time-svg")) {
     return;
   }
+  
+  // Инициализируем плеер если нужно
+  if (!playerStore.audioRef) {
+    initPlayer();
+  }
+  
   playTrack(props.track);
 };
 
 const toggleFavorite = () => {
-  isFavorite.value = !isFavorite.value;
-  emit("toggle-favorite", props.track);
+  favoritesStore.toggleFavorite(props.track);
 };
 </script>
 

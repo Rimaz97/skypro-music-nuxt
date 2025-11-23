@@ -1,5 +1,5 @@
 <template>
-  <div class="bar">
+  <div v-if="playerStore.showPlayer" class="bar">
     <div class="bar__content">
       <div class="bar__player-progress" @click="handleProgressClick">
         <div class="progress-bar">
@@ -20,14 +20,14 @@
             </div>
 
             <div class="player__btn-play _btn" @click="handlePlay">
-              <svg class="player__btn-play-svg">
-                <use
-                  :xlink:href="
-                    playerStore.isPlaying
-                      ? '/img/icon/sprite.svg#icon-pause'
-                      : '/img/icon/sprite.svg#icon-play'
-                  "
-                />
+              <img
+                v-if="playerStore.isPlaying"
+                src="/img/icon/pause.svg"
+                alt="Пауза"
+                class="player__btn-play-icon"
+              >
+              <svg v-else class="player__btn-play-svg">
+                <use xlink:href="/img/icon/sprite.svg#icon-play" />
               </svg>
             </div>
 
@@ -119,13 +119,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Скрытый аудио элемент -->
-    <audio
-      ref="audioRef"
-      @timeupdate="handleTimeUpdate"
-      @ended="handleTrackEnd"
-    />
   </div>
 </template>
 
@@ -134,23 +127,12 @@ import { usePlayerStore } from "~/stores/player";
 import { useAudioPlayer } from "~/composables/useAudioPlayer";
 
 const playerStore = usePlayerStore();
-const audioRef = ref(null);
-
-// Получаем функции из composable
-const { initPlayer, handleTimeUpdate, handleTrackEnd, seekTo, updateVolume } =
-  useAudioPlayer();
+const { seekTo, updateVolume } = useAudioPlayer(); // Убрали неиспользуемые функции
 
 // Локальные состояния для кнопок
 const isRepeating = ref(false);
 const isShuffled = ref(false);
 const isTrackLiked = ref(false);
-
-// Инициализируем плеер при монтировании
-onMounted(() => {
-  if (audioRef.value) {
-    initPlayer(audioRef.value);
-  }
-});
 
 // Обработчик клика по кнопке play
 const handlePlay = () => {
