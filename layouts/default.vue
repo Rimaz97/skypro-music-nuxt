@@ -2,7 +2,7 @@
   <div class="wrapper">
     <div class="container">
       <!-- Верхняя панель -->
-      <div class="top-container">
+      <div v-if="_showFullInterface" class="top-container">
         <div class="top-left">
           <LayoutNavbar />
         </div>
@@ -29,34 +29,52 @@
       </div>
 
       <!-- Основной контент -->
-      <main class="main">
+      <main class="main" :class="{ 'main--auth': !_showFullInterface }">
         <div class="main__centerblock centerblock">
           <slot />
         </div>
 
-        <LayoutSidebar />
+        <LayoutSidebar v-if="_showFullInterface" />
       </main>
 
       <!-- Плеер внизу -->
-      <LayoutPlayer />
+      <LayoutPlayer v-if="_showFullInterface && _playerStore.showPlayer" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { useFiltersStore } from '~/stores/filters';
+import { usePlayerStore } from '~/stores/player';
+import { useUserStore } from '~/stores/user';
 
 const filtersStore = useFiltersStore();
+const _playerStore = usePlayerStore(); // Добавляем префикс _ для использования в шаблоне
+const userStore = useUserStore();
+const route = useRoute();
 
-// Базовые метатеги для всего сайта
-useHead({
-  title: "Skypro.Music",
-  meta: [
-    { name: "description", content: "Лучший музыкальный сервис" },
-  ],
+// Показывать ли полный интерфейс (с плеером, сайдбаром и т.д.)
+const _showFullInterface = computed(() => { // Добавляем префикс _ для использования в шаблоне
+  // Не показывать на страницах входа и регистрации
+  return !['/login', '/register'].includes(route.path);
 });
 
 const logout = () => {
+  userStore.clearUser();
   navigateTo("/login");
 };
+
+// Восстанавливаем пользователя при загрузке
+onMounted(() => {
+  userStore.restoreUser();
+});
+
+const _usedVars = [_playerStore, _showFullInterface];
 </script>
+
+<style scoped>
+.main--auth {
+  justify-content: center;
+  align-items: center;
+}
+</style>
