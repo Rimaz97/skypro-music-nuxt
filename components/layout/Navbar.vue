@@ -2,7 +2,13 @@
   <nav class="main__nav nav">
     <div class="nav__logo logo">
       <NuxtLink to="/">
-        <img class="logo__image" src="/img/logo.png" alt="Logo">
+        <NuxtImg
+          class="logo__image"
+          src="/img/logo.png"
+          alt="Skypro.Music Logo"
+          :placeholder="[5]"
+          loading="lazy"
+        />
       </NuxtLink>
     </div>
     <div
@@ -50,9 +56,8 @@ const closeMenu = () => {
 };
 
 const logout = () => {
-  console.log("Logout");
+  console.log("Logout clicked");
   navigateTo("/login");
-  closeMenu();
 };
 
 // Закрытие меню при клике вне его области
@@ -115,7 +120,7 @@ onUnmounted(() => {
   display: none;
   position: absolute;
   top: 100%;
-  left: 0; /* Меню раскрывается вправо от бургера */
+  left: 0;
   background-color: #181818;
   border: 1px solid #4e4e4e;
   border-radius: 8px;
@@ -152,6 +157,7 @@ onUnmounted(() => {
   text-decoration: none;
   padding: 12px 20px;
   border-bottom: 1px solid #2e2e2e;
+  cursor: pointer; /* Добавляем курсор для кликабельности */
 }
 
 .menu__link:hover {
@@ -168,6 +174,7 @@ onUnmounted(() => {
   color: #b672ff;
 }
 
+/* Улучшаем стили для мобильных устройств */
 @media (max-width: 767px) {
   .nav {
     flex-direction: row;
@@ -191,6 +198,10 @@ onUnmounted(() => {
 
   .logo__image {
     width: 100px;
+  }
+
+  .menu__link {
+    padding: 12px 20px;
   }
 }
 

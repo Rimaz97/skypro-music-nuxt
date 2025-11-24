@@ -1,24 +1,40 @@
 import { usePlayerStore } from "~/stores/player";
+import { watchEffect } from "vue";
 
 export function useAudioPlayer() {
   const playerStore = usePlayerStore();
 
-  // Инициализируем плеер в самом начале
-  const initPlayer = (element) => {
-    if (!element) {
-      console.error("Плеера нет :(");
-      return false;
+  // Инициализируем плеер - теперь вызывается из TrackItem при первом клике
+  const initPlayer = () => {
+    if (typeof document !== "undefined") {
+      // Создаем аудио элемент если его нет
+      if (!playerStore.audioRef) {
+        const audioElement = document.createElement("audio");
+        playerStore.setAudioRef(audioElement);
+        console.log("Плеер инициализирован успешно");
+
+        // Добавляем обработчики событий
+        audioElement.addEventListener("timeupdate", handleTimeUpdate);
+        audioElement.addEventListener("ended", handleTrackEnd);
+
+        // Добавляем в DOM (скрыто)
+        audioElement.style.display = "none";
+        document.body.appendChild(audioElement);
+      }
+      return true;
     }
-    playerStore.setAudioRef(element);
-    console.log("Плеер инициализирован успешно");
-    return true;
+    return false;
   };
 
   // Воспроизводим трек
   const playTrack = async (track) => {
+    // Инициализируем плеер если еще не инициализирован
     if (!playerStore.audioRef) {
-      console.error("Плеер не инициализирован");
-      return false;
+      const initialized = initPlayer();
+      if (!initialized) {
+        console.error("Плеер не инициализирован");
+        return false;
+      }
     }
 
     try {
@@ -87,8 +103,14 @@ export function useAudioPlayer() {
 
   // Обработчик окончания трека
   const handleTrackEnd = () => {
+    console.log("Трек завершен, переключаем на следующий");
     playerStore.setPlaying(false);
     playerStore.setProgress(0);
+
+    // Автоматически переключаем на следующий трек
+    if (playerStore.playlist.length > 0) {
+      playerStore.nextTrack();
+    }
   };
 
   // Перематываем
@@ -107,6 +129,15 @@ export function useAudioPlayer() {
     if (!playerStore.audioRef) return;
     playerStore.audioRef.volume = playerStore.volume / 100;
   };
+
+  // Используем watchEffect для автоматической остановки трека при достижении конца
+  watchEffect(() => {
+    if (playerStore.progress >= 100 && playerStore.isPlaying) {
+      console.log("Трек завершен, останавливаем воспроизведение");
+      playerStore.setPlaying(false);
+      playerStore.setProgress(0);
+    }
+  });
 
   return {
     initPlayer,
