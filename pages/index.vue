@@ -439,11 +439,12 @@ const handleToggleFavorite = (track) => {
   background: rgba(182, 114, 255, 0.1);
   border-radius: 8px;
   max-width: 100%;
+  margin-left: 294px;
 }
 
 .active-filters__title {
   font-size: 14px;
-  color: #b672ff;
+  color: #ffffff;
   margin-bottom: 8px;
   font-weight: 500;
 }

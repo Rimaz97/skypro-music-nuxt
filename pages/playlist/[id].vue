@@ -63,9 +63,18 @@ const {
   "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/",
   {
     lazy: true,
-    server: false, // Загружаем только на клиенте, так как плейлисты не критичны для SEO
+    server: false,
   }
 );
+
+// Функция для получения строки жанра
+const getGenreString = (track) => {
+  if (!track.genre) return "";
+  if (Array.isArray(track.genre)) {
+    return track.genre.join(" ").toLowerCase();
+  }
+  return track.genre.toLowerCase();
+};
 
 const playlistTracks = computed(() => {
   const allTracks = response.value?.data || [];
@@ -83,21 +92,23 @@ const playlistTracks = computed(() => {
     case "dance":
       // Для танцевальных хитов - треки с высоким темпом
       filteredTracks = allTracks
-        .filter(
-          (track) =>
-            track.genre?.toLowerCase().includes("dance") ||
-            track.genre?.toLowerCase().includes("electronic")
-        )
+        .filter((track) => {
+          const genreString = getGenreString(track);
+          return (
+            genreString.includes("dance") || genreString.includes("electronic")
+          );
+        })
         .slice(0, 15);
       break;
     case "indie":
       // Для инди-заряда - инди треки
       filteredTracks = allTracks
-        .filter(
-          (track) =>
-            track.genre?.toLowerCase().includes("indie") ||
-            track.genre?.toLowerCase().includes("alternative")
-        )
+        .filter((track) => {
+          const genreString = getGenreString(track);
+          return (
+            genreString.includes("indie") || genreString.includes("alternative")
+          );
+        })
         .slice(0, 15);
       break;
     default:

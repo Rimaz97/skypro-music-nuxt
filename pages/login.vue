@@ -73,17 +73,13 @@ const handleSubmit = async () => {
   try {
     // Валидация полей
     if (!email.value.trim()) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите email",
-      });
+      errorMessage.value = "Введите email";
+      return;
     }
 
     if (!password.value.trim()) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите пароль",
-      });
+      errorMessage.value = "Введите пароль";
+      return;
     }
 
     // Проверка формата email
@@ -113,17 +109,7 @@ const handleSubmit = async () => {
     navigateTo("/");
   } catch (error) {
     console.error("Ошибка входа:", error);
-
-    // Если это наша кастомная ошибка, показываем ее
-    if (error.statusCode === 400) {
-      errorMessage.value = error.message;
-    } else {
-      // Для других ошибок используем showError
-      throw showError({
-        statusCode: 500,
-        message: "Произошла ошибка при входе. Попробуйте еще раз.",
-      });
-    }
+    errorMessage.value = "Произошла ошибка при входе. Попробуйте еще раз.";
   } finally {
     loading.value = false;
   }
