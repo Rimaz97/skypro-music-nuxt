@@ -3,7 +3,11 @@
     <form class="modal__form-login" @submit.prevent="handleSubmit">
       <NuxtLink to="/">
         <div class="modal__logo">
-          <img src="/img/logo_modal.png" alt="logo" >
+          <NuxtImg
+            src="/img/logo_modal.png"
+            alt="логотип Skypro Music"
+            :placeholder="[5]"
+          />
         </div>
       </NuxtLink>
 
@@ -26,7 +30,7 @@
       >
 
       <button type="submit" class="modal__btn" :disabled="loading">
-        {{ loading ? 'Загрузка...' : 'Войти' }}
+        {{ loading ? "Загрузка..." : "Войти" }}
       </button>
 
       <NuxtLink to="/register" class="modal__btn-switch">
@@ -44,7 +48,7 @@
 <script setup>
 // Указываем использование auth layout
 definePageMeta({
-  layout: 'auth'
+  layout: "auth",
 });
 
 // Динамический заголовок для страницы входа
@@ -101,16 +105,15 @@ const handleSubmit = async () => {
 
     // Здесь будет реальная логика входа
     console.log("Попытка входа:", email.value);
-    
+
     // Имитация запроса к API
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Если успешно, перенаправляем на главную
     navigateTo("/");
-    
   } catch (error) {
     console.error("Ошибка входа:", error);
-    
+
     // Если это наша кастомная ошибка, показываем ее
     if (error.statusCode === 400) {
       errorMessage.value = error.message;

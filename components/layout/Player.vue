@@ -20,12 +20,13 @@
             </div>
 
             <div class="player__btn-play _btn" @click="handlePlay">
-              <img
+              <NuxtImg
                 v-if="playerStore.isPlaying"
                 src="/img/icon/pause.svg"
                 alt="Пауза"
                 class="player__btn-play-icon"
-              >
+                :placeholder="[5]"
+              />
               <svg v-else class="player__btn-play-svg">
                 <use xlink:href="/img/icon/sprite.svg#icon-play" />
               </svg>
@@ -39,7 +40,7 @@
 
             <div
               class="player__btn-repeat _btn-icon"
-              :class="{ active: isRepeating }"
+              :class="{ active: playerStore.isLoop }"
               @click="toggleRepeat"
             >
               <svg class="player__btn-repeat-svg">
@@ -49,7 +50,7 @@
 
             <div
               class="player__btn-shuffle _btn-icon"
-              :class="{ active: isShuffled }"
+              :class="{ active: playerStore.isShuffled }"
               @click="toggleShuffle"
             >
               <svg class="player__btn-shuffle-svg">
@@ -125,14 +126,22 @@
 <script setup>
 import { usePlayerStore } from "~/stores/player";
 import { useAudioPlayer } from "~/composables/useAudioPlayer";
+import { useFavoritesStore } from "~/stores/favorites";
 
 const playerStore = usePlayerStore();
-const { seekTo, updateVolume } = useAudioPlayer(); // Убрали неиспользуемые функции
+const favoritesStore = useFavoritesStore();
+const { seekTo, updateVolume } = useAudioPlayer();
 
-// Локальные состояния для кнопок
-const isRepeating = ref(false);
-const isShuffled = ref(false);
-const isTrackLiked = ref(false);
+// Загружаем избранное при монтировании
+onMounted(() => {
+  favoritesStore.loadFavorites();
+});
+
+// Проверяем, в избранном ли текущий трек
+const isTrackLiked = computed(() => {
+  if (!playerStore.currentTrack) return false;
+  return favoritesStore.isFavorite(playerStore.currentTrack);
+});
 
 // Обработчик клика по кнопке play
 const handlePlay = () => {
@@ -153,25 +162,27 @@ const handleProgressClick = (event) => {
   seekTo(percentage);
 };
 
-// Остальные методы (заглушки)
-const toggleRepeat = () => {
-  isRepeating.value = !isRepeating.value;
-};
-
-const toggleShuffle = () => {
-  isShuffled.value = !isShuffled.value;
-};
-
+// Управление треками
 const nextTrack = () => {
-  // Заглушка для следующего трека
+  playerStore.nextTrack();
 };
 
 const previousTrack = () => {
-  // Заглушка для предыдущего трека
+  playerStore.previousTrack();
+};
+
+const toggleRepeat = () => {
+  playerStore.toggleLoop();
+};
+
+const toggleShuffle = () => {
+  playerStore.toggleShuffle();
 };
 
 const toggleLike = () => {
-  isTrackLiked.value = !isTrackLiked.value;
+  if (playerStore.currentTrack) {
+    favoritesStore.toggleFavorite(playerStore.currentTrack);
+  }
 };
 </script>
 

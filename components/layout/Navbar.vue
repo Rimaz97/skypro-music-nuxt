@@ -2,7 +2,13 @@
   <nav class="main__nav nav">
     <div class="nav__logo logo">
       <NuxtLink to="/">
-        <img class="logo__image" src="/img/logo.png" alt="Logo">
+        <NuxtImg
+          class="logo__image"
+          src="/img/logo.png"
+          alt="Skypro.Music Logo"
+          :placeholder="[5]"
+          loading="lazy"
+        />
       </NuxtLink>
     </div>
     <div
@@ -193,7 +199,7 @@ onUnmounted(() => {
   .logo__image {
     width: 100px;
   }
-  
+
   .menu__link {
     padding: 12px 20px;
   }

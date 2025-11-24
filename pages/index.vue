@@ -255,6 +255,7 @@
           v-for="track in filteredTracks"
           :key="track._id"
           :track="track"
+          :playlist="filteredTracks"
           @toggle-favorite="handleToggleFavorite"
         />
       </div>
@@ -268,7 +269,7 @@ useHead({
   title: "Главная | Skypro.Music",
 });
 
-// Загрузка треков
+// Основная загрузка треков - критичные данные, используем обычный useFetch
 const {
   data: response,
   pending,

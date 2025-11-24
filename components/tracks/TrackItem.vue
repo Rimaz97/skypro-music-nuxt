@@ -49,6 +49,10 @@
 </template>
 
 <script setup>
+import { usePlayerStore } from "~/stores/player";
+import { useFavoritesStore } from "~/stores/favorites";
+import { useAudioPlayer } from "~/composables/useAudioPlayer";
+
 const playerStore = usePlayerStore();
 const favoritesStore = useFavoritesStore();
 const { initPlayer, playTrack } = useAudioPlayer();
@@ -58,6 +62,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  playlist: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 // Загружаем избранное при монтировании
@@ -66,13 +74,18 @@ onMounted(() => {
 });
 
 // Сохраняем при изменении
-watch(() => favoritesStore.favoriteTracks, () => {
-  favoritesStore.saveFavorites();
-}, { deep: true });
+watch(
+  () => favoritesStore.favoriteTracks,
+  () => {
+    favoritesStore.saveFavorites();
+  },
+  { deep: true }
+);
 
 // Проверяем, является ли этот трек текущим
 const isCurrentTrack = computed(() => {
-  const currentTrackId = playerStore.currentTrack?._id || playerStore.currentTrack?.id;
+  const currentTrackId =
+    playerStore.currentTrack?._id || playerStore.currentTrack?.id;
   const trackId = props.track._id || props.track.id;
   return currentTrackId === trackId;
 });
@@ -101,12 +114,17 @@ const playThisTrack = async (event) => {
   if (event.target.closest(".track__time-svg")) {
     return;
   }
-  
+
+  // Устанавливаем плейлист, если он передан
+  if (props.playlist && props.playlist.length > 0) {
+    playerStore.setPlaylist(props.playlist);
+  }
+
   // Инициализируем плеер если нужно
   if (!playerStore.audioRef) {
     initPlayer();
   }
-  
+
   playTrack(props.track);
 };
 

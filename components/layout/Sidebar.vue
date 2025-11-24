@@ -4,29 +4,35 @@
       <div class="sidebar__list">
         <div class="sidebar__item">
           <NuxtLink class="sidebar__link" to="/playlist/1">
-            <img
+            <NuxtImg
               class="sidebar__img"
               src="/img/playlist01.png"
-              alt="day's playlist"
-            >
+              alt="Плейлист дня"
+              :placeholder="[5]"
+              loading="lazy"
+            />
           </NuxtLink>
         </div>
         <div class="sidebar__item">
           <NuxtLink class="sidebar__link" to="/playlist/2">
-            <img
+            <NuxtImg
               class="sidebar__img"
               src="/img/playlist02.png"
-              alt="day's playlist"
-            >
+              alt="100 танцевальных хитов"
+              :placeholder="[5]"
+              loading="lazy"
+            />
           </NuxtLink>
         </div>
         <div class="sidebar__item">
           <NuxtLink class="sidebar__link" to="/playlist/3">
-            <img
+            <NuxtImg
               class="sidebar__img"
               src="/img/playlist03.png"
-              alt="day's playlist"
-            >
+              alt="Инди-заряд"
+              :placeholder="[5]"
+              loading="lazy"
+            />
           </NuxtLink>
         </div>
       </div>

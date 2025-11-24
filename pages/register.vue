@@ -3,7 +3,11 @@
     <form class="modal__form-login" @submit.prevent="handleSubmit">
       <NuxtLink to="/">
         <div class="modal__logo">
-          <img src="/img/logo_modal.png" alt="logo" >
+          <NuxtImg
+            src="/img/logo_modal.png"
+            alt="логотип Skypro Music"
+            :placeholder="[5]"
+          />
         </div>
       </NuxtLink>
 
@@ -35,12 +39,10 @@
       >
 
       <button type="submit" class="modal__btn" :disabled="loading">
-        {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
+        {{ loading ? "Регистрация..." : "Зарегистрироваться" }}
       </button>
 
-      <NuxtLink to="/login" class="modal__btn-switch">
-        Войти
-      </NuxtLink>
+      <NuxtLink to="/login" class="modal__btn-switch"> Войти </NuxtLink>
 
       <!-- Сообщение об ошибке -->
       <div v-if="errorMessage" class="error-message">
@@ -53,7 +55,7 @@
 <script setup>
 // Указываем использование auth layout
 definePageMeta({
-  layout: 'auth'
+  layout: "auth",
 });
 
 // Динамический заголовок для страницы регистрации
@@ -126,16 +128,15 @@ const handleSubmit = async () => {
 
     // Здесь будет реальная логика регистрации
     console.log("Попытка регистрации:", email.value);
-    
+
     // Имитация запроса к API
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     // Если успешно, перенаправляем на главную
     navigateTo("/");
-    
   } catch (error) {
     console.error("Ошибка регистрации:", error);
-    
+
     // Если это наша кастомная ошибка, показываем ее
     if (error.statusCode === 400) {
       errorMessage.value = error.message;

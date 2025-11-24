@@ -1,24 +1,24 @@
 import { usePlayerStore } from "~/stores/player";
-import { watchEffect } from 'vue';
+import { watchEffect } from "vue";
 
 export function useAudioPlayer() {
   const playerStore = usePlayerStore();
 
   // Инициализируем плеер - теперь вызывается из TrackItem при первом клике
   const initPlayer = () => {
-    if (typeof document !== 'undefined') {
+    if (typeof document !== "undefined") {
       // Создаем аудио элемент если его нет
       if (!playerStore.audioRef) {
-        const audioElement = document.createElement('audio');
+        const audioElement = document.createElement("audio");
         playerStore.setAudioRef(audioElement);
         console.log("Плеер инициализирован успешно");
-        
+
         // Добавляем обработчики событий
-        audioElement.addEventListener('timeupdate', handleTimeUpdate);
-        audioElement.addEventListener('ended', handleTrackEnd);
-        
+        audioElement.addEventListener("timeupdate", handleTimeUpdate);
+        audioElement.addEventListener("ended", handleTrackEnd);
+
         // Добавляем в DOM (скрыто)
-        audioElement.style.display = 'none';
+        audioElement.style.display = "none";
         document.body.appendChild(audioElement);
       }
       return true;
@@ -41,7 +41,8 @@ export function useAudioPlayer() {
       console.log("Начинаем воспроизведение трека:", track);
 
       // ИСПРАВЛЕНИЕ: сравниваем по _id, а не по id
-      const currentTrackId = playerStore.currentTrack?._id || playerStore.currentTrack?.id;
+      const currentTrackId =
+        playerStore.currentTrack?._id || playerStore.currentTrack?.id;
       const newTrackId = track._id || track.id;
 
       if (currentTrackId === newTrackId) {
@@ -102,8 +103,14 @@ export function useAudioPlayer() {
 
   // Обработчик окончания трека
   const handleTrackEnd = () => {
+    console.log("Трек завершен, переключаем на следующий");
     playerStore.setPlaying(false);
     playerStore.setProgress(0);
+
+    // Автоматически переключаем на следующий трек
+    if (playerStore.playlist.length > 0) {
+      playerStore.nextTrack();
+    }
   };
 
   // Перематываем
