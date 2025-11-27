@@ -60,6 +60,12 @@ const email = ref("");
 const password = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
+const userStore = useUserStore();
+
+// Если пользователь уже авторизован, перенаправляем на главную
+if (userStore.isAuthenticated) {
+  navigateTo("/");
+}
 
 const clearError = () => {
   errorMessage.value = "";
@@ -73,17 +79,13 @@ const handleSubmit = async () => {
   try {
     // Валидация полей
     if (!email.value.trim()) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите email",
-      });
+      errorMessage.value = "Введите email";
+      return;
     }
 
     if (!password.value.trim()) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите пароль",
-      });
+      errorMessage.value = "Введите пароль";
+      return;
     }
 
     // Проверка формата email
@@ -109,21 +111,18 @@ const handleSubmit = async () => {
     // Имитация запроса к API
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    // Сохраняем пользователя
+    userStore.setUser({
+      email: email.value,
+      name: email.value.split("@")[0],
+      token: `user-token-${Date.now()}`,
+    });
+
     // Если успешно, перенаправляем на главную
     navigateTo("/");
   } catch (error) {
     console.error("Ошибка входа:", error);
-
-    // Если это наша кастомная ошибка, показываем ее
-    if (error.statusCode === 400) {
-      errorMessage.value = error.message;
-    } else {
-      // Для других ошибок используем showError
-      throw showError({
-        statusCode: 500,
-        message: "Произошла ошибка при входе. Попробуйте еще раз.",
-      });
-    }
+    errorMessage.value = "Произошла ошибка при входе. Попробуйте еще раз.";
   } finally {
     loading.value = false;
   }

@@ -68,6 +68,12 @@ const password = ref("");
 const confirmPassword = ref("");
 const loading = ref(false);
 const errorMessage = ref("");
+const userStore = useUserStore();
+
+// Если пользователь уже авторизован, перенаправляем на главную
+if (userStore.isAuthenticated) {
+  navigateTo('/');
+}
 
 const clearError = () => {
   errorMessage.value = "";
@@ -131,6 +137,13 @@ const handleSubmit = async () => {
 
     // Имитация запроса к API
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Сохраняем пользователя
+    userStore.setUser({
+      email: email.value,
+      name: email.value.split('@')[0],
+      token: `user-token-${Date.now()}`
+    });
 
     // Если успешно, перенаправляем на главную
     navigateTo("/");

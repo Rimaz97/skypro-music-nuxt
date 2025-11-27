@@ -68,7 +68,16 @@ useHead({
   title: `${categoryName.value} | Skypro.Music`,
 });
 
-// Ленивая загрузка треков категории - не критичные данные
+// Функция для получения строки жанра
+const getGenreString = (track) => {
+  if (!track.genre) return "";
+  if (Array.isArray(track.genre)) {
+    return track.genre.join(" ").toLowerCase();
+  }
+  return track.genre.toLowerCase();
+};
+
+// Ленивая загрузка треков категории
 const {
   data: response,
   pending,
@@ -77,26 +86,22 @@ const {
   "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/",
   {
     lazy: true,
-    server: false, // Загружаем только на клиенте, так как категории не критичны для SEO
+    server: false,
     transform: (data) => {
       // Фильтруем треки по жанрам категории
       if (!data.data) return [];
 
       const filteredTracks = data.data.filter((track) => {
-        if (!track.genre) return false;
+        const trackGenreString = getGenreString(track);
+        if (!trackGenreString) return false;
 
         // Проверяем, соответствует ли жанр трека категории
-        const trackGenres = Array.isArray(track.genre)
-          ? track.genre
-          : [track.genre];
-        return trackGenres.some((genre) =>
-          categoryInfo.genres.some((catGenre) =>
-            genre.toLowerCase().includes(catGenre.toLowerCase())
-          )
+        return categoryInfo.genres.some((catGenre) =>
+          trackGenreString.includes(catGenre.toLowerCase())
         );
       });
 
-      return filteredTracks.slice(0, 20); // Ограничиваем количество треков
+      return filteredTracks.slice(0, 20);
     },
   }
 );
