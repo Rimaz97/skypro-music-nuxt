@@ -2,110 +2,100 @@
   <div class="register-page">
     <form @submit.prevent="handleRegister" class="register-form">
       <h2>Регистрация в Skypro Music</h2>
-      
+
       <!-- Индикатор мок-режима -->
-      
+
       <div class="form-group">
         <label for="email">Email:</label>
-        <input 
+        <input
           id="email"
-          v-model="registerForm.email" 
-          type="email" 
+          v-model="registerForm.email"
+          type="email"
           placeholder="user@example.com"
           required
           autocomplete="email"
-        >
+        />
       </div>
-      
+
       <div class="form-group">
         <label for="username">Имя пользователя:</label>
-        <input 
+        <input
           id="username"
-          v-model="registerForm.username" 
-          type="text" 
+          v-model="registerForm.username"
+          type="text"
           placeholder="username"
           required
           autocomplete="username"
-        >
+        />
       </div>
-      
+
       <div class="form-group">
         <label for="password">Пароль:</label>
-        <input 
+        <input
           id="password"
-          v-model="registerForm.password" 
-          type="password" 
+          v-model="registerForm.password"
+          type="password"
           placeholder="Придумайте пароль"
           required
           autocomplete="new-password"
-        >
+        />
       </div>
-      
+
       <button type="submit" :disabled="loading" class="register-btn">
-        {{ loading ? 'Регистрация...' : 'Зарегистрироваться' }}
+        {{ loading ? "Регистрация..." : "Зарегистрироваться" }}
       </button>
-      
+
       <p v-if="error" class="error-message">{{ error }}</p>
-      
+
       <p class="login-link">
         Уже есть аккаунт? <NuxtLink to="/login">Войти</NuxtLink>
       </p>
-
-      <!-- Статистика -->
-      <div class="stats">
-        <p>Зарегистрировано пользователей: <strong>{{ userStore.registeredUsersCount }}</strong></p>
-      </div>
-
-      <!-- Подсказка для демо-режима -->
-      <div class="demo-hint">
-        <p>💡После регистрации вы сможете войти с этими данными</p>
-      </div>
     </form>
   </div>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: 'auth'
-})
+  layout: "auth",
+});
 
-const userStore = useUserStore()
-const router = useRouter()
+const userStore = useUserStore();
+const router = useRouter();
 
 const registerForm = ref({
-  email: '',
-  username: '',
-  password: ''
-})
-const loading = ref(false)
-const error = ref('')
+  email: "",
+  username: "",
+  password: "",
+});
+const loading = ref(false);
+const error = ref("");
 
 const handleRegister = async () => {
-  loading.value = true
-  error.value = ''
-  
+  loading.value = true;
+  error.value = "";
+
   try {
     const cleanData = {
       email: registerForm.value.email.trim(),
       username: registerForm.value.username.trim(),
-      password: registerForm.value.password
-    }
-    
-    await userStore.register(cleanData)
-    await router.push('/')
+      password: registerForm.value.password,
+    };
+
+    await userStore.register(cleanData);
+    await router.push("/");
   } catch (err) {
-    error.value = err.message || 'Ошибка регистрации.'
+    error.value = err.message || "Ошибка регистрации.";
   }
-  
-  loading.value = false
-}
+
+  loading.value = false;
+};
 
 onMounted(() => {
-  userStore.restoreUser()
+  userStore.restoreUser();
   if (userStore.isAuthenticated) {
-    router.push('/')
+    router.push("/");
   }
-})
+});
 </script>
 
 <style scoped>
@@ -120,7 +110,7 @@ onMounted(() => {
   background: white;
   padding: 2rem;
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 400px;
   position: relative;

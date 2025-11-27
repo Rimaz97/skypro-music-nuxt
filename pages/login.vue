@@ -2,96 +2,86 @@
   <div class="login-page">
     <form @submit.prevent="handleLogin" class="login-form">
       <h2>Вход в Skypro Music</h2>
-      
+
       <!-- Индикатор мок-режима -->
-      
+
       <div class="form-group">
         <label for="email">Email:</label>
-        <input 
+        <input
           id="email"
-          v-model="loginForm.email" 
-          type="email" 
+          v-model="loginForm.email"
+          type="email"
           placeholder="user@example.com"
           required
           autocomplete="email"
-        >
+        />
       </div>
-      
+
       <div class="form-group">
         <label for="password">Пароль:</label>
-        <input 
+        <input
           id="password"
-          v-model="loginForm.password" 
-          type="password" 
+          v-model="loginForm.password"
+          type="password"
           placeholder="Введите ваш пароль"
           required
           autocomplete="current-password"
-        >
+        />
       </div>
-      
+
       <button type="submit" :disabled="loading" class="login-btn">
-        {{ loading ? 'Вход...' : 'Войти' }}
+        {{ loading ? "Вход..." : "Войти" }}
       </button>
-      
+
       <p v-if="error" class="error-message">{{ error }}</p>
-      
+
       <p class="register-link">
         Нет аккаунта? <NuxtLink to="/register">Зарегистрироваться</NuxtLink>
       </p>
-
-      <!-- Статистика -->
-      <div class="stats">
-        <p>Зарегистрировано пользователей: <strong>{{ userStore.registeredUsersCount }}</strong></p>
-      </div>
-
-      <!-- Подсказка для демо-режима -->
-      <div class="demo-hint">
-        <p>💡Для входа используйте email и пароль!</p>
-      </div>
     </form>
   </div>
 </template>
 
 <script setup>
 definePageMeta({
-  layout: 'auth'
-})
+  layout: "auth",
+});
 
-const userStore = useUserStore()
-const router = useRouter()
+const userStore = useUserStore();
+const router = useRouter();
 
 const loginForm = ref({
-  email: '',
-  password: ''
-})
-const loading = ref(false)
-const error = ref('')
+  email: "",
+  password: "",
+});
+const loading = ref(false);
+const error = ref("");
 
 const handleLogin = async () => {
-  loading.value = true
-  error.value = ''
-  
+  loading.value = true;
+  error.value = "";
+
   try {
     const cleanCredentials = {
       email: loginForm.value.email.trim(),
-      password: loginForm.value.password
-    }
-    
-    await userStore.login(cleanCredentials)
-    await router.push('/')
+      password: loginForm.value.password,
+    };
+
+    await userStore.login(cleanCredentials);
+    await router.push("/");
   } catch (err) {
-    error.value = err.message || 'Ошибка входа. Проверьте введенные данные.'
+    error.value = err.message || "Ошибка входа. Проверьте введенные данные.";
   }
-  
-  loading.value = false
-}
+
+  loading.value = false;
+};
 
 onMounted(() => {
-  userStore.restoreUser()
+  userStore.restoreUser();
   if (userStore.isAuthenticated) {
-    router.push('/')
+    router.push("/");
   }
-})
+});
 </script>
 
 <style scoped>
@@ -106,7 +96,7 @@ onMounted(() => {
   background: white;
   padding: 2rem;
   border-radius: 10px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 400px;
   position: relative;

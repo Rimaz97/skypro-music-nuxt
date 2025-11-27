@@ -114,7 +114,7 @@
                 min="0"
                 max="100"
                 @input="updateVolume"
-              >
+              />
             </div>
           </div>
         </div>

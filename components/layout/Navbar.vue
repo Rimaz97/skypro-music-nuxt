@@ -37,20 +37,15 @@
           </NuxtLink>
         </li>
         <li class="menu__item">
-          <a 
-            v-if="userStore.isAuthenticated" 
-            href="#" 
-            class="menu__link" 
+          <a
+            v-if="userStore.isAuthenticated"
+            href="#"
+            class="menu__link"
             @click.prevent="logout"
           >
             Выйти
           </a>
-          <NuxtLink 
-            v-else 
-            to="/login" 
-            class="menu__link" 
-            @click="closeMenu"
-          >
+          <NuxtLink v-else to="/login" class="menu__link" @click="closeMenu">
             Войти
           </NuxtLink>
         </li>
@@ -60,42 +55,42 @@
 </template>
 
 <script setup>
-const userStore = useUserStore()
-const isMenuOpen = ref(false)
+const userStore = useUserStore();
+const isMenuOpen = ref(false);
 
 const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value
-}
+  isMenuOpen.value = !isMenuOpen.value;
+};
 
 const closeMenu = () => {
-  isMenuOpen.value = false
-}
+  isMenuOpen.value = false;
+};
 
 const logout = () => {
-  userStore.clearUser()
-  closeMenu()
-  navigateTo("/login")
-}
+  userStore.clearUser();
+  closeMenu();
+  navigateTo("/login");
+};
 
 // Восстанавливаем пользователя при загрузке компонента
 onMounted(() => {
-  userStore.restoreUser()
-})
+  userStore.restoreUser();
+});
 
 // Закрытие меню при клике вне его области
 const handleClickOutside = (event) => {
   if (!event.target.closest(".nav")) {
-    closeMenu()
+    closeMenu();
   }
-}
+};
 
 onMounted(() => {
-  document.addEventListener("click", handleClickOutside)
-})
+  document.addEventListener("click", handleClickOutside);
+});
 
 onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside)
-})
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
 <style scoped>

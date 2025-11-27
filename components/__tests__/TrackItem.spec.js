@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 
-
 // Простой тест без сложных моков
 describe("TrackItem - базовый тест", () => {
   it("проверяет форматирование длительности", () => {

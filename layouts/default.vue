@@ -21,14 +21,16 @@
           <div class="sidebar__personal">
             <!-- Для авторизованных пользователей -->
             <div v-if="userStore.isAuthenticated" class="user-info">
-              <span class="user-greeting" @click="logout">Привет, {{ userStore.userName }}</span>
+              <span class="user-greeting" @click="logout"
+                >Привет, {{ userStore.userName }}</span
+              >
               <div class="sidebar__icon" @click="logout">
                 <svg>
                   <use xlink:href="/img/icon/sprite.svg#logout" />
                 </svg>
               </div>
             </div>
-            
+
             <!-- Для неавторизованных пользователей -->
             <div v-else class="sidebar__icon" @click="navigateToLogin">
               <svg>
@@ -55,8 +57,8 @@
 </template>
 
 <script setup>
-import { useFiltersStore } from '~/stores/filters';
-import { useUserStore } from '~/stores/user';
+import { useFiltersStore } from "~/stores/filters";
+import { useUserStore } from "~/stores/user";
 
 const filtersStore = useFiltersStore();
 const _playerStore = usePlayerStore();
@@ -66,7 +68,7 @@ const route = useRoute();
 // Показывать ли полный интерфейс (с плеером, сайдбаром и т.д.)
 const _showFullInterface = computed(() => {
   // Не показывать на страницах входа и регистрации
-  return !['/login', '/register'].includes(route.path);
+  return !["/login", "/register"].includes(route.path);
 });
 
 const logout = () => {
@@ -82,7 +84,6 @@ const navigateToLogin = () => {
 onMounted(() => {
   userStore.restoreUser();
 });
-
 </script>
 
 <style scoped>
@@ -131,7 +132,6 @@ onMounted(() => {
 }
 
 .sidebar__icon svg {
-
   fill: white;
 }
 </style>
