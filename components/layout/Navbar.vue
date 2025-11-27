@@ -1,7 +1,7 @@
 <template>
   <nav class="main__nav nav">
     <div class="nav__logo logo">
-      <NuxtLink to="/">
+      <NuxtLink :to="userStore.isAuthenticated ? '/' : '/login'">
         <NuxtImg
           class="logo__image"
           src="/img/logo.png"
@@ -37,7 +37,22 @@
           </NuxtLink>
         </li>
         <li class="menu__item">
-          <a href="#" class="menu__link" @click.prevent="logout">Выйти</a>
+          <a 
+            v-if="userStore.isAuthenticated" 
+            href="#" 
+            class="menu__link" 
+            @click.prevent="logout"
+          >
+            Выйти
+          </a>
+          <NuxtLink 
+            v-else 
+            to="/login" 
+            class="menu__link" 
+            @click="closeMenu"
+          >
+            Войти
+          </NuxtLink>
         </li>
       </ul>
     </div>
@@ -45,35 +60,42 @@
 </template>
 
 <script setup>
-const isMenuOpen = ref(false);
+const userStore = useUserStore()
+const isMenuOpen = ref(false)
 
 const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value;
-};
+  isMenuOpen.value = !isMenuOpen.value
+}
 
 const closeMenu = () => {
-  isMenuOpen.value = false;
-};
+  isMenuOpen.value = false
+}
 
 const logout = () => {
-  console.log("Logout clicked");
-  navigateTo("/login");
-};
+  userStore.clearUser()
+  closeMenu()
+  navigateTo("/login")
+}
+
+// Восстанавливаем пользователя при загрузке компонента
+onMounted(() => {
+  userStore.restoreUser()
+})
 
 // Закрытие меню при клике вне его области
 const handleClickOutside = (event) => {
   if (!event.target.closest(".nav")) {
-    closeMenu();
+    closeMenu()
   }
-};
+}
 
 onMounted(() => {
-  document.addEventListener("click", handleClickOutside);
-});
+  document.addEventListener("click", handleClickOutside)
+})
 
 onUnmounted(() => {
-  document.removeEventListener("click", handleClickOutside);
-});
+  document.removeEventListener("click", handleClickOutside)
+})
 </script>
 
 <style scoped>
@@ -157,7 +179,7 @@ onUnmounted(() => {
   text-decoration: none;
   padding: 12px 20px;
   border-bottom: 1px solid #2e2e2e;
-  cursor: pointer; /* Добавляем курсор для кликабельности */
+  cursor: pointer;
 }
 
 .menu__link:hover {

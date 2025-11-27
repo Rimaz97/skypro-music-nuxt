@@ -1,221 +1,221 @@
 <template>
-  <div class="modal__block">
-    <form class="modal__form-login" @submit.prevent="handleSubmit">
-      <NuxtLink to="/">
-        <div class="modal__logo">
-          <NuxtImg
-            src="/img/logo_modal.png"
-            alt="логотип Skypro Music"
-            :placeholder="[5]"
-          />
-        </div>
-      </NuxtLink>
-
-      <input
-        v-model="email"
-        class="modal__input login"
-        type="text"
-        name="login"
-        placeholder="Почта"
-        @input="clearError"
-      >
-
-      <input
-        v-model="password"
-        class="modal__input password-first"
-        type="password"
-        name="password"
-        placeholder="Пароль"
-        @input="clearError"
-      >
-
-      <button type="submit" class="modal__btn" :disabled="loading">
-        {{ loading ? "Загрузка..." : "Войти" }}
+  <div class="login-page">
+    <form @submit.prevent="handleLogin" class="login-form">
+      <h2>Вход в Skypro Music</h2>
+      
+      <!-- Индикатор мок-режима -->
+      
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input 
+          id="email"
+          v-model="loginForm.email" 
+          type="email" 
+          placeholder="user@example.com"
+          required
+          autocomplete="email"
+        >
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Пароль:</label>
+        <input 
+          id="password"
+          v-model="loginForm.password" 
+          type="password" 
+          placeholder="Введите ваш пароль"
+          required
+          autocomplete="current-password"
+        >
+      </div>
+      
+      <button type="submit" :disabled="loading" class="login-btn">
+        {{ loading ? 'Вход...' : 'Войти' }}
       </button>
+      
+      <p v-if="error" class="error-message">{{ error }}</p>
+      
+      <p class="register-link">
+        Нет аккаунта? <NuxtLink to="/register">Зарегистрироваться</NuxtLink>
+      </p>
 
-      <NuxtLink to="/register" class="modal__btn-switch">
-        Зарегистрироваться
-      </NuxtLink>
+      <!-- Статистика -->
+      <div class="stats">
+        <p>Зарегистрировано пользователей: <strong>{{ userStore.registeredUsersCount }}</strong></p>
+      </div>
 
-      <!-- Сообщение об ошибке -->
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
+      <!-- Подсказка для демо-режима -->
+      <div class="demo-hint">
+        <p>💡Для входа используйте email и пароль!</p>
       </div>
     </form>
   </div>
 </template>
 
 <script setup>
-// Указываем использование auth layout
 definePageMeta({
-  layout: "auth",
-});
+  layout: 'auth'
+})
 
-// Динамический заголовок для страницы входа
-useHead({
-  title: "Вход | Skypro.Music",
-});
+const userStore = useUserStore()
+const router = useRouter()
 
-const email = ref("");
-const password = ref("");
-const loading = ref(false);
-const errorMessage = ref("");
-const userStore = useUserStore();
+const loginForm = ref({
+  email: '',
+  password: ''
+})
+const loading = ref(false)
+const error = ref('')
 
-// Если пользователь уже авторизован, перенаправляем на главную
-if (userStore.isAuthenticated) {
-  navigateTo("/");
+const handleLogin = async () => {
+  loading.value = true
+  error.value = ''
+  
+  try {
+    const cleanCredentials = {
+      email: loginForm.value.email.trim(),
+      password: loginForm.value.password
+    }
+    
+    await userStore.login(cleanCredentials)
+    await router.push('/')
+  } catch (err) {
+    error.value = err.message || 'Ошибка входа. Проверьте введенные данные.'
+  }
+  
+  loading.value = false
 }
 
-const clearError = () => {
-  errorMessage.value = "";
-};
-
-const handleSubmit = async () => {
-  // Сбрасываем предыдущие ошибки
-  errorMessage.value = "";
-  loading.value = true;
-
-  try {
-    // Валидация полей
-    if (!email.value.trim()) {
-      errorMessage.value = "Введите email";
-      return;
-    }
-
-    if (!password.value.trim()) {
-      errorMessage.value = "Введите пароль";
-      return;
-    }
-
-    // Проверка формата email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.value)) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите корректный email",
-      });
-    }
-
-    // Проверка длины пароля
-    if (password.value.length < 6) {
-      throw showError({
-        statusCode: 400,
-        message: "Пароль должен содержать минимум 6 символов",
-      });
-    }
-
-    // Здесь будет реальная логика входа
-    console.log("Попытка входа:", email.value);
-
-    // Имитация запроса к API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Сохраняем пользователя
-    userStore.setUser({
-      email: email.value,
-      name: email.value.split("@")[0],
-      token: `user-token-${Date.now()}`,
-    });
-
-    // Если успешно, перенаправляем на главную
-    navigateTo("/");
-  } catch (error) {
-    console.error("Ошибка входа:", error);
-    errorMessage.value = "Произошла ошибка при входе. Попробуйте еще раз.";
-  } finally {
-    loading.value = false;
+onMounted(() => {
+  userStore.restoreUser()
+  if (userStore.isAuthenticated) {
+    router.push('/')
   }
-};
+})
 </script>
 
 <style scoped>
-.modal__block {
-  background-color: #ffffff;
-  padding: 40px;
-  border-radius: 12px;
-  max-width: 366px;
-  width: 100%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.modal__form-login {
+.login-page {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 20px;
+  min-height: 100vh;
 }
 
-.modal__logo {
-  margin-bottom: 20px;
-}
-
-.modal__logo img {
-  width: 140px;
-}
-
-.modal__input {
+.login-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   width: 100%;
-  padding: 12px 16px;
-  background: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  line-height: 1.2;
-  color: #000000;
-  transition: border-color 0.3s;
+  max-width: 400px;
+  position: relative;
 }
 
-.modal__input:focus {
+.login-form h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.mock-indicator {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #155724;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #555;
+  font-weight: 500;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.form-group input:focus {
   outline: none;
-  border-color: #b672ff;
+  border-color: #667eea;
 }
 
-.modal__input::placeholder {
-  color: #b1b1b1;
-}
-
-.modal__btn {
+.login-btn {
   width: 100%;
-  padding: 12px;
-  background: #b672ff;
+  padding: 0.75rem;
+  background: #667eea;
+  color: white;
   border: none;
-  border-radius: 6px;
-  color: #ffffff;
-  font-size: 16px;
+  border-radius: 5px;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: background 0.3s;
 }
 
-.modal__btn:hover:not(:disabled) {
-  background: #9a5ae0;
-}
-
-.modal__btn:disabled {
-  background: #7c7c7c;
+.login-btn:disabled {
+  background: #ccc;
   cursor: not-allowed;
 }
 
-.modal__btn-switch {
-  color: #b672ff;
-  text-decoration: none;
-  font-size: 14px;
-  transition: color 0.3s;
-}
-
-.modal__btn-switch:hover {
-  color: #9a5ae0;
-  text-decoration: underline;
+.login-btn:hover:not(:disabled) {
+  background: #5a6fd8;
 }
 
 .error-message {
-  color: #ff6b6b;
-  font-size: 14px;
+  color: #e74c3c;
   text-align: center;
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: rgba(255, 107, 107, 0.1);
-  border-radius: 4px;
-  width: 100%;
+  margin: 1rem 0;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.register-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.register-link a:hover {
+  text-decoration: underline;
+}
+
+.stats {
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.demo-hint {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #666;
+  border-left: 4px solid #28a745;
+}
+
+.demo-hint p {
+  margin: 0.25rem 0;
 }
 </style>

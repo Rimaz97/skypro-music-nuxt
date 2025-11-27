@@ -256,7 +256,6 @@
           :key="track._id"
           :track="track"
           :playlist="filteredTracks"
-          @toggle-favorite="handleToggleFavorite"
         />
       </div>
     </div>
@@ -302,10 +301,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });
-
-const handleToggleFavorite = (track) => {
-  console.log("Toggle favorite", track);
-};
 </script>
 
 <style scoped>
