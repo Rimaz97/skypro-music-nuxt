@@ -3,14 +3,14 @@
     <h2 class="centerblock__h2">Мой плейлист</h2>
 
     <!-- Состояние загрузки -->
-    <div v-if="pending" class="content__playlist playlist">
+    <div v-if="favoritesStore.loading" class="content__playlist playlist">
       <div class="loading">Загрузка избранных треков...</div>
     </div>
 
     <!-- Сообщение об ошибке -->
-    <div v-else-if="error" class="content__playlist playlist">
+    <div v-else-if="favoritesStore.error" class="content__playlist playlist">
       <div class="error">
-        Ошибка загрузки избранных треков: {{ error.message }}
+        Ошибка загрузки избранных треков: {{ favoritesStore.error }}
       </div>
     </div>
 
@@ -19,7 +19,13 @@
       v-else-if="favoriteTracks.length === 0"
       class="content__playlist playlist"
     >
-      <div class="loading">Нет избранных треков</div>
+      <div class="empty-state">
+        <div class="empty-icon">🎵</div>
+        <h3 class="empty-title">Нет избранных треков</h3>
+        <p class="empty-description">
+          Добавляйте треки в избранное, нажимая на сердечко
+        </p>
+      </div>
     </div>
 
     <!-- Список избранных треков -->
@@ -48,50 +54,36 @@
 
 <script setup>
 import { useFavoritesStore } from "~/stores/favorites";
+import { useUserStore } from "~/stores/user";
 
-// Динамический заголовок для страницы избранного
 useHead({
   title: "Мой плейлист | Skypro.Music",
 });
 
 const favoritesStore = useFavoritesStore();
-
-// Используем ленивую загрузку для дополнительных данных (например, рекомендаций)
-// Это пример - в реальном приложении здесь могла бы быть загрузка рекомендованных треков
-const {
-  data: recommendedTracks,
-  pending,
-  error,
-} = await useLazyFetch(
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/",
-  {
-    lazy: true,
-    server: false, // Загружаем только на клиенте
-  }
-);
+const userStore = useUserStore();
 
 // Загружаем избранное при загрузке страницы
 onMounted(() => {
-  favoritesStore.loadFavorites();
+  if (userStore.isAuthenticated) {
+    favoritesStore.fetchFavorites();
+  }
 });
+
+// Перезагружаем избранное при появлении пользователя
+watch(
+  () => userStore.isAuthenticated,
+  (isAuthenticated) => {
+    if (isAuthenticated) {
+      favoritesStore.fetchFavorites();
+    } else {
+      favoritesStore.favoriteTracks = [];
+    }
+  }
+);
 
 const favoriteTracks = computed(() => {
   return favoritesStore.favoriteTracks;
-});
-
-// Логика для работы с рекомендованными треками (пример)
-const setupRecommendedTracks = () => {
-  if (recommendedTracks.value) {
-    console.log(
-      "Рекомендованные треки загружены:",
-      recommendedTracks.value.data?.length
-    );
-    // Здесь можно добавить логику для работы с рекомендованными треками
-  }
-};
-
-watch(recommendedTracks, () => {
-  setupRecommendedTracks();
 });
 </script>
 
@@ -107,5 +99,27 @@ watch(recommendedTracks, () => {
 
 .error {
   color: #ff6b6b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #696969;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.empty-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.empty-description {
+  font-size: 16px;
+  line-height: 1.5;
 }
 </style>

@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 // Простая функция для тестирования (в реальности это будет из useTrackFilters)
 export function filterTracksByAuthor(tracks, author) {
   if (!author) return tracks;
-  return tracks.filter(track => 
+  return tracks.filter((track) =>
     track.author?.toLowerCase().includes(author.toLowerCase())
   );
 }

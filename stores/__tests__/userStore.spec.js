@@ -19,7 +19,7 @@ describe("userStore", () => {
     const userData = {
       email: "test@example.com",
       name: "Test User",
-      token: "test-token"
+      access: "test-token",
     };
 
     userStore.setUser(userData);
@@ -31,12 +31,12 @@ describe("userStore", () => {
 
   it("очищает пользователя", () => {
     const userStore = useUserStore();
-    
+
     // Сначала устанавливаем пользователя
     userStore.setUser({
       email: "test@example.com",
       name: "Test User",
-      token: "test-token"
+      token: "test-token",
     });
 
     // Затем очищаем

@@ -10,7 +10,7 @@
       placeholder="Поиск"
       name="search"
       @input="handleInput"
-    >
+    />
     <div v-if="modelValue" class="search-clear" @click="clearSearch">×</div>
   </div>
 </template>

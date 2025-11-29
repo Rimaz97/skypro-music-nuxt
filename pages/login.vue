@@ -1,221 +1,238 @@
 <template>
-  <div class="modal__block">
-    <form class="modal__form-login" @submit.prevent="handleSubmit">
-      <NuxtLink to="/">
-        <div class="modal__logo">
+  <div class="login-page">
+    <div class="login-container">
+      <div class="login-header">
+        <div class="logo">
           <NuxtImg
             src="/img/logo_modal.png"
-            alt="логотип Skypro Music"
-            :placeholder="[5]"
+            alt="Skypro.Music"
+            class="logo-image"
           />
         </div>
-      </NuxtLink>
-
-      <input
-        v-model="email"
-        class="modal__input login"
-        type="text"
-        name="login"
-        placeholder="Почта"
-        @input="clearError"
-      >
-
-      <input
-        v-model="password"
-        class="modal__input password-first"
-        type="password"
-        name="password"
-        placeholder="Пароль"
-        @input="clearError"
-      >
-
-      <button type="submit" class="modal__btn" :disabled="loading">
-        {{ loading ? "Загрузка..." : "Войти" }}
-      </button>
-
-      <NuxtLink to="/register" class="modal__btn-switch">
-        Зарегистрироваться
-      </NuxtLink>
-
-      <!-- Сообщение об ошибке -->
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
       </div>
-    </form>
+
+      <form @submit.prevent="handleLogin" class="login-form">
+        <div class="form-group">
+          <label for="email" class="form-label">Логин</label>
+          <input
+            id="email"
+            v-model="loginForm.email"
+            type="email"
+            class="form-input"
+            placeholder="Введите ваш email"
+            autocomplete="email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Пароль</label>
+          <input
+            id="password"
+            v-model="loginForm.password"
+            type="password"
+            class="form-input"
+            placeholder="Введите пароль"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+
+        <!-- Блок отображения ошибок -->
+        <div v-if="userStore.error" class="error-message">
+          {{ userStore.error }}
+        </div>
+
+        <button
+          type="submit"
+          :disabled="userStore.loading || loading"
+          class="login-button"
+        >
+          <span v-if="userStore.loading || loading">Вход...</span>
+          <span v-else>Войти</span>
+        </button>
+
+        <!-- Кнопка регистрации -->
+        <NuxtLink to="/register" class="register-button">
+          Зарегистрироваться
+        </NuxtLink>
+      </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-// Указываем использование auth layout
 definePageMeta({
   layout: "auth",
 });
 
-// Динамический заголовок для страницы входа
-useHead({
-  title: "Вход | Skypro.Music",
-});
-
-const email = ref("");
-const password = ref("");
-const loading = ref(false);
-const errorMessage = ref("");
 const userStore = useUserStore();
+const router = useRouter();
 
-// Если пользователь уже авторизован, перенаправляем на главную
-if (userStore.isAuthenticated) {
-  navigateTo("/");
-}
+const loginForm = ref({
+  email: "",
+  password: "",
+});
+const loading = ref(false);
 
-const clearError = () => {
-  errorMessage.value = "";
-};
-
-const handleSubmit = async () => {
-  // Сбрасываем предыдущие ошибки
-  errorMessage.value = "";
+const handleLogin = async () => {
   loading.value = true;
 
   try {
-    // Валидация полей
-    if (!email.value.trim()) {
-      errorMessage.value = "Введите email";
-      return;
-    }
+    const cleanCredentials = {
+      email: loginForm.value.email.trim(),
+      password: loginForm.value.password,
+    };
 
-    if (!password.value.trim()) {
-      errorMessage.value = "Введите пароль";
-      return;
-    }
-
-    // Проверка формата email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.value)) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите корректный email",
-      });
-    }
-
-    // Проверка длины пароля
-    if (password.value.length < 6) {
-      throw showError({
-        statusCode: 400,
-        message: "Пароль должен содержать минимум 6 символов",
-      });
-    }
-
-    // Здесь будет реальная логика входа
-    console.log("Попытка входа:", email.value);
-
-    // Имитация запроса к API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Сохраняем пользователя
-    userStore.setUser({
-      email: email.value,
-      name: email.value.split("@")[0],
-      token: `user-token-${Date.now()}`,
-    });
-
-    // Если успешно, перенаправляем на главную
-    navigateTo("/");
+    await userStore.login(cleanCredentials);
+    await router.push("/");
   } catch (error) {
-    console.error("Ошибка входа:", error);
-    errorMessage.value = "Произошла ошибка при входе. Попробуйте еще раз.";
-  } finally {
-    loading.value = false;
+    console.error("Login failed:", error);
   }
+
+  loading.value = false;
 };
+
+onMounted(() => {
+  userStore.restoreUser();
+  if (userStore.isAuthenticated) {
+    router.push("/");
+  }
+});
 </script>
 
 <style scoped>
-.modal__block {
-  background-color: #ffffff;
-  padding: 40px;
-  border-radius: 12px;
-  max-width: 366px;
-  width: 100%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.modal__form-login {
+.login-page {
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 20px;
+  justify-content: center;
+  padding: 20px;
 }
 
-.modal__logo {
+.login-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: 42px;
+}
+
+.logo-image {
+  width: 140px;
+  height: auto;
+}
+
+.form-group {
   margin-bottom: 20px;
 }
 
-.modal__logo img {
-  width: 140px;
+.form-label {
+  display: block;
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-family: "Montserrat", sans-serif;
 }
 
-.modal__input {
+.form-input {
   width: 100%;
   padding: 12px 16px;
   background: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  line-height: 1.2;
-  color: #000000;
-  transition: border-color 0.3s;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-family: "Montserrat", sans-serif;
+  transition: all 0.3s ease;
 }
 
-.modal__input:focus {
+.form-input:focus {
   outline: none;
   border-color: #b672ff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(182, 114, 255, 0.1);
 }
 
-.modal__input::placeholder {
-  color: #b1b1b1;
+.form-input::placeholder {
+  color: #6b7280;
 }
 
-.modal__btn {
+.login-button {
   width: 100%;
-  padding: 12px;
-  background: #b672ff;
-  border: none;
-  border-radius: 6px;
+  padding: 14px;
+  background:#582ca2;
   color: #ffffff;
+  border: none;
+  border-radius: 8px;
   font-size: 16px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  margin-top: 8px;
 }
 
-.modal__btn:hover:not(:disabled) {
-  background: #9a5ae0;
+.login-button:hover:not(:disabled) {
+  background: #582ca2;
+  transform: translateY(-1px);
 }
 
-.modal__btn:disabled {
-  background: #7c7c7c;
+.login-button:disabled {
+  background: #9ca3af;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
-.modal__btn-switch {
-  color: #b672ff;
+/* Стили для кнопки регистрации */
+.register-button {
+  width: 100%;
+  padding: 14px;
+  background: transparent;
+  color: #000000;
+  border: 2px solid #582ca2;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+  text-align: center;
   text-decoration: none;
-  font-size: 14px;
-  transition: color 0.3s;
+  display: block;
 }
 
-.modal__btn-switch:hover {
-  color: #9a5ae0;
-  text-decoration: underline;
+.register-button:hover {
+  background: #582ca2;
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .error-message {
-  color: #ff6b6b;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
   font-size: 14px;
+  font-family: "Montserrat", sans-serif;
   text-align: center;
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: rgba(255, 107, 107, 0.1);
-  border-radius: 4px;
-  width: 100%;
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    padding: 24px;
+    margin: 0 16px;
+  }
 }
 </style>

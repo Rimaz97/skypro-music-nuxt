@@ -201,7 +201,6 @@
             >×</span
           >
         </span>
-        <!-- Теперь годы тоже в цикле -->
         <span
           v-for="year in filtersStore.selectedFilters.year"
           :key="year"
@@ -229,13 +228,34 @@
       </div>
     </div>
 
-    <!-- Состояния загрузки и ошибки -->
-    <div v-if="pending" class="content__playlist playlist">
-      <div class="loading">Загрузка треков...</div>
+    <!-- Скелетон загрузки -->
+    <div v-if="pending" class="skeleton-container">
+      <div class="skeleton-header"></div>
+      <div class="skeleton-filters">
+        <div class="skeleton-filter" v-for="i in 3" :key="i"></div>
+      </div>
+      <div class="skeleton-tracks">
+        <div class="skeleton-track" v-for="i in 5" :key="i">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-text"></div>
+          <div class="skeleton-text short"></div>
+          <div class="skeleton-text short"></div>
+        </div>
+      </div>
     </div>
 
+    <!-- Сообщение об ошибке -->
     <div v-else-if="error" class="content__playlist playlist">
       <div class="error">Ошибка загрузки треков: {{ error.message }}</div>
+    </div>
+
+    <!-- Сообщение "Нет треков" -->
+    <div v-else-if="filteredTracks.length === 0" class="empty-state">
+      <div class="empty-icon">🎵</div>
+      <h3 class="empty-title">Нет треков :(</h3>
+      <p class="empty-description">
+        Попробуйте изменить параметры поиска или фильтры
+      </p>
     </div>
 
     <!-- Список треков -->
@@ -256,7 +276,6 @@
           :key="track._id"
           :track="track"
           :playlist="filteredTracks"
-          @toggle-favorite="handleToggleFavorite"
         />
       </div>
     </div>
@@ -302,10 +321,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("click", handleClickOutside);
 });
-
-const handleToggleFavorite = (track) => {
-  console.log("Toggle favorite", track);
-};
 </script>
 
 <style scoped>
@@ -475,6 +490,102 @@ const handleToggleFavorite = (track) => {
 
 .active-filter__remove:hover {
   color: #ff5252;
+}
+
+/* Скелетон загрузки */
+.skeleton-container {
+  padding: 20px;
+}
+
+.skeleton-header {
+  height: 60px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.skeleton-filter {
+  height: 36px;
+  width: 120px;
+  background: #2a2a2a;
+  border-radius: 18px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-track {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
+  background: #2a2a2a;
+  border-radius: 8px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-image {
+  width: 51px;
+  height: 51px;
+  background: #383838;
+  border-radius: 4px;
+}
+
+.skeleton-text {
+  height: 16px;
+  background: #383838;
+  border-radius: 4px;
+  flex: 1;
+}
+
+.skeleton-text.short {
+  flex: 0.5;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Состояние "Нет треков" */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #696969;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.empty-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.empty-description {
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 .loading,

@@ -1,258 +1,255 @@
 <template>
-  <div class="modal__block">
-    <form class="modal__form-login" @submit.prevent="handleSubmit">
-      <NuxtLink to="/">
-        <div class="modal__logo">
+  <div class="register-page">
+    <div class="register-container">
+      <div class="register-header">
+        <div class="logo">
           <NuxtImg
             src="/img/logo_modal.png"
-            alt="логотип Skypro Music"
-            :placeholder="[5]"
+            alt="Skypro.Music"
+            class="logo-image"
           />
         </div>
-      </NuxtLink>
-
-      <input
-        v-model="email"
-        class="modal__input login"
-        type="text"
-        name="login"
-        placeholder="Почта"
-        @input="clearError"
-      >
-
-      <input
-        v-model="password"
-        class="modal__input password-first"
-        type="password"
-        name="password"
-        placeholder="Пароль"
-        @input="clearError"
-      >
-
-      <input
-        v-model="confirmPassword"
-        class="modal__input password-double"
-        type="password"
-        name="confirmPassword"
-        placeholder="Повторите пароль"
-        @input="clearError"
-      >
-
-      <button type="submit" class="modal__btn" :disabled="loading">
-        {{ loading ? "Регистрация..." : "Зарегистрироваться" }}
-      </button>
-
-      <NuxtLink to="/login" class="modal__btn-switch"> Войти </NuxtLink>
-
-      <!-- Сообщение об ошибке -->
-      <div v-if="errorMessage" class="error-message">
-        {{ errorMessage }}
       </div>
-    </form>
+
+      <form @submit.prevent="handleRegister" class="register-form">
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input
+            id="email"
+            v-model="registerForm.email"
+            type="email"
+            class="form-input"
+            placeholder="Введите ваш email"
+            autocomplete="email"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="username" class="form-label">Имя пользователя</label>
+          <input
+            id="username"
+            v-model="registerForm.username"
+            type="text"
+            class="form-input"
+            placeholder="Придумайте имя пользователя"
+            autocomplete="username"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Пароль</label>
+          <input
+            id="password"
+            v-model="registerForm.password"
+            type="password"
+            class="form-input"
+            placeholder="Придумайте пароль"
+            autocomplete="new-password"
+            required
+          />
+        </div>
+
+        <!-- Блок отображения ошибок -->
+        <div v-if="userStore.error" class="error-message">
+          {{ userStore.error }}
+        </div>
+
+        <button
+          type="submit"
+          :disabled="userStore.loading || loading"
+          class="register-button"
+        >
+          <span v-if="userStore.loading || loading">Регистрация...</span>
+          <span v-else>Зарегистрироваться</span>
+        </button>
+
+        <div class="register-footer">
+          <p class="footer-text">
+            Уже есть аккаунт?
+            <NuxtLink to="/login" class="footer-link">Войти</NuxtLink>
+          </p>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
 <script setup>
-// Указываем использование auth layout
 definePageMeta({
   layout: "auth",
 });
 
-// Динамический заголовок для страницы регистрации
-useHead({
-  title: "Регистрация | Skypro.Music",
-});
-
-const email = ref("");
-const password = ref("");
-const confirmPassword = ref("");
-const loading = ref(false);
-const errorMessage = ref("");
 const userStore = useUserStore();
+const router = useRouter();
 
-// Если пользователь уже авторизован, перенаправляем на главную
-if (userStore.isAuthenticated) {
-  navigateTo('/');
-}
+const registerForm = ref({
+  email: "",
+  username: "",
+  password: "",
+});
+const loading = ref(false);
 
-const clearError = () => {
-  errorMessage.value = "";
-};
-
-const handleSubmit = async () => {
-  // Сбрасываем предыдущие ошибки
-  errorMessage.value = "";
+const handleRegister = async () => {
   loading.value = true;
 
   try {
-    // Валидация полей
-    if (!email.value.trim()) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите email",
-      });
-    }
+    const cleanData = {
+      email: registerForm.value.email.trim(),
+      username: registerForm.value.username.trim(),
+      password: registerForm.value.password,
+    };
 
-    if (!password.value.trim()) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите пароль",
-      });
-    }
-
-    if (!confirmPassword.value.trim()) {
-      throw showError({
-        statusCode: 400,
-        message: "Повторите пароль",
-      });
-    }
-
-    // Проверка формата email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email.value)) {
-      throw showError({
-        statusCode: 400,
-        message: "Введите корректный email",
-      });
-    }
-
-    // Проверка длины пароля
-    if (password.value.length < 6) {
-      throw showError({
-        statusCode: 400,
-        message: "Пароль должен содержать минимум 6 символов",
-      });
-    }
-
-    // Проверка совпадения паролей
-    if (password.value !== confirmPassword.value) {
-      throw showError({
-        statusCode: 400,
-        message: "Пароли не совпадают",
-      });
-    }
-
-    // Здесь будет реальная логика регистрации
-    console.log("Попытка регистрации:", email.value);
-
-    // Имитация запроса к API
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // Сохраняем пользователя
-    userStore.setUser({
-      email: email.value,
-      name: email.value.split('@')[0],
-      token: `user-token-${Date.now()}`
-    });
-
-    // Если успешно, перенаправляем на главную
-    navigateTo("/");
+    await userStore.register(cleanData);
+    await router.push("/");
   } catch (error) {
-    console.error("Ошибка регистрации:", error);
-
-    // Если это наша кастомная ошибка, показываем ее
-    if (error.statusCode === 400) {
-      errorMessage.value = error.message;
-    } else {
-      // Для других ошибок используем showError
-      throw showError({
-        statusCode: 500,
-        message: "Произошла ошибка при регистрации. Попробуйте еще раз.",
-      });
-    }
-  } finally {
-    loading.value = false;
+    // Ошибка уже установлена в userStore.error, поэтому здесь просто ловим исключение
+    console.error("Registration failed:", error);
   }
+
+  loading.value = false;
 };
+
+onMounted(() => {
+  userStore.restoreUser();
+  if (userStore.isAuthenticated) {
+    router.push("/");
+  }
+});
 </script>
 
 <style scoped>
-.modal__block {
-  background-color: #ffffff;
-  padding: 40px;
-  border-radius: 12px;
-  max-width: 366px;
-  width: 100%;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-.modal__form-login {
+.register-page {
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 20px;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
 }
 
-.modal__logo {
+.register-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e1e5e9;
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 42px;
+}
+
+.logo-image {
+  width: 140px;
+  height: auto;
+}
+
+.form-group {
   margin-bottom: 20px;
 }
 
-.modal__logo img {
-  width: 140px;
+.form-label {
+  display: block;
+  color: #1a1a1a;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  font-family: "Montserrat", sans-serif;
 }
 
-.modal__input {
+.form-input {
   width: 100%;
   padding: 12px 16px;
   background: #ffffff;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 14px;
-  line-height: 1.2;
-  color: #000000;
-  transition: border-color 0.3s;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  color: #1a1a1a;
+  font-size: 16px;
+  font-family: "Montserrat", sans-serif;
+  transition: all 0.3s ease;
 }
 
-.modal__input:focus {
+.form-input:focus {
   outline: none;
   border-color: #b672ff;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(182, 114, 255, 0.1);
 }
 
-.modal__input::placeholder {
-  color: #b1b1b1;
+.form-input::placeholder {
+  color: #6b7280;
 }
 
-.modal__btn {
+.register-button {
   width: 100%;
-  padding: 12px;
-  background: #b672ff;
-  border: none;
-  border-radius: 6px;
+  padding: 14px;
+  background: #582ca2;
   color: #ffffff;
+  border: none;
+  border-radius: 8px;
   font-size: 16px;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s ease;
+  margin-top: 8px;
 }
 
-.modal__btn:hover:not(:disabled) {
-  background: #9a5ae0;
+.register-button:hover:not(:disabled) {
+  background: #582ca2;
+  transform: translateY(-1px);
 }
 
-.modal__btn:disabled {
-  background: #7c7c7c;
+.register-button:disabled {
+  background: #9ca3af;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
-.modal__btn-switch {
-  color: #b672ff;
-  text-decoration: none;
+.register-footer {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.footer-text {
+  color: #6b7280;
   font-size: 14px;
-  transition: color 0.3s;
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
 }
 
-.modal__btn-switch:hover {
-  color: #9a5ae0;
+.footer-link {
+  color: #582ca2;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.footer-link:hover {
   text-decoration: underline;
 }
 
 .error-message {
-  color: #ff6b6b;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  color: #dc2626;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
   font-size: 14px;
+  font-family: "Montserrat", sans-serif;
   text-align: center;
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: rgba(255, 107, 107, 0.1);
-  border-radius: 4px;
-  width: 100%;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .register-container {
+    padding: 24px;
+    margin: 0 16px;
+  }
 }
 </style>

@@ -114,7 +114,7 @@
                 min="0"
                 max="100"
                 @input="updateVolume"
-              >
+              />
             </div>
           </div>
         </div>
@@ -339,7 +339,6 @@ const toggleLike = () => {
   display: flex;
   flex-direction: row;
   align-items: center;
-  flex: 2;
   justify-content: center;
 }
 
