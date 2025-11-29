@@ -59,15 +59,15 @@
 <script setup>
 import { useFiltersStore } from "~/stores/filters";
 import { useUserStore } from "~/stores/user";
+import { useFavoritesStore } from "~/stores/favorites";
 
 const filtersStore = useFiltersStore();
 const _playerStore = usePlayerStore();
 const userStore = useUserStore();
+const favoritesStore = useFavoritesStore();
 const route = useRoute();
 
-// Показывать ли полный интерфейс (с плеером, сайдбаром и т.д.)
 const _showFullInterface = computed(() => {
-  // Не показывать на страницах входа и регистрации
   return !["/login", "/register"].includes(route.path);
 });
 
@@ -80,10 +80,28 @@ const navigateToLogin = () => {
   navigateTo("/login");
 };
 
-// Восстанавливаем пользователя при загрузке
+// Восстанавливаем пользователя при загрузке и загружаем избранное
 onMounted(() => {
   userStore.restoreUser();
+
+  if (userStore.isAuthenticated) {
+    setTimeout(() => {
+      favoritesStore.fetchFavorites().catch(console.error);
+    }, 500);
+  }
 });
+
+// Следим за изменением статуса аутентификации
+watch(
+  () => userStore.isAuthenticated,
+  (isAuthenticated) => {
+    if (isAuthenticated) {
+      setTimeout(() => {
+        favoritesStore.fetchFavorites().catch(console.error);
+      }, 1000);
+    }
+  }
+);
 </script>
 
 <style scoped>

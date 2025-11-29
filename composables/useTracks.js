@@ -12,14 +12,16 @@ export const useTracks = () => {
     error.value = null;
     try {
       const response = await fetch(`${API_URL}/catalog/track/all/`);
+
       if (!response.ok) {
-        throw new Error("Не удалось получить треки");
+        throw new Error(`Ошибка сервера: ${response.status}`);
       }
+
       const data = await response.json();
-      tracks.value = data.data;
+      tracks.value = data.data || [];
     } catch (e) {
-      error.value =
-        e instanceof Error ? e.message : "Ошибка при загрузке треков :(";
+      error.value = e.message || "Не удалось загрузить треки";
+      tracks.value = []; // Сбрасываем треки при ошибке
     } finally {
       loading.value = false;
     }

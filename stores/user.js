@@ -1,113 +1,265 @@
 import { defineStore } from "pinia";
 
+const API_URL = "https://webdev-music-003b5b991590.herokuapp.com";
+
 export const useUserStore = defineStore("user", {
   state: () => ({
     user: null,
     isAuthenticated: false,
     token: null,
-    registeredUsers: [], // Массив зарегистрированных пользователей
+    refreshToken: null,
+    loading: false,
+    error: null,
   }),
 
   actions: {
+    validateCredentials(email, password, username = "") {
+      const errors = [];
+
+      if (!email?.trim()) errors.push("Email обязателен");
+      else if (!/^\S+@\S+\.\S+$/.test(email)) errors.push("Некорректный email");
+
+      if (!password) errors.push("Пароль обязателен");
+      else if (password.length < 6)
+        errors.push("Пароль должен быть не менее 6 символов");
+
+      if (username && !username.trim())
+        errors.push("Имя пользователя не может состоять только из пробелов");
+
+      return errors;
+    },
+
+    async getTokens(email, password) {
+      try {
+        const response = await fetch(`${API_URL}/user/token/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            password: password,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          let errorMessage = "Ошибка получения токенов";
+          if (data.detail) errorMessage = data.detail;
+          else if (data.email) errorMessage = `Email: ${data.email[0]}`;
+          else if (data.password) errorMessage = `Пароль: ${data.password[0]}`;
+
+          throw new Error(errorMessage);
+        }
+
+        if (!data.access || !data.refresh) {
+          throw new Error("Сервер не вернул токены доступа");
+        }
+
+        return {
+          access: data.access,
+          refresh: data.refresh,
+        };
+      } catch (error) {
+        console.error("Token retrieval error:", error);
+        throw error;
+      }
+    },
+
     async login(credentials) {
       try {
-        // Имитируем задержку сети
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        this.loading = true;
+        this.error = null;
 
-        // Проверяем, что email и пароль не пустые
-        if (!credentials.email?.trim() || !credentials.password) {
-          throw new Error("Email и пароль обязательны для заполнения");
+        const validationErrors = this.validateCredentials(
+          credentials.email,
+          credentials.password
+        );
+        if (validationErrors.length > 0) {
+          throw new Error(validationErrors.join(", "));
         }
 
-        // Ищем пользователя в списке зарегистрированных
-        const foundUser = this.registeredUsers.find(
-          (user) =>
-            user.email === credentials.email.trim() &&
-            user.password === credentials.password
+        const loginResponse = await fetch(`${API_URL}/user/login/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: credentials.email.trim(),
+            password: credentials.password,
+          }),
+        });
+
+        const loginData = await loginResponse.json();
+
+        if (!loginResponse.ok) {
+          let errorMessage = "Ошибка авторизации";
+          if (loginData.message) errorMessage = loginData.message;
+          else if (loginData.detail) errorMessage = loginData.detail;
+          else if (loginResponse.status === 401)
+            errorMessage = "Неверный email или пароль";
+
+          throw new Error(errorMessage);
+        }
+
+        const tokens = await this.getTokens(
+          credentials.email,
+          credentials.password
         );
 
-        if (foundUser) {
-          const mockUser = {
-            id: foundUser.id,
-            email: foundUser.email,
-            username: foundUser.username,
-            name: foundUser.name,
-            access: "mock-jwt-token-" + Date.now(),
-          };
+        this.setUser({
+          email: credentials.email.trim(),
+          username:
+            loginData.username || credentials.email.trim().split("@")[0],
+          access: tokens.access,
+          refresh: tokens.refresh,
+        });
 
-          this.setUser(mockUser);
-          return true;
-        } else {
-          throw new Error("Пользователь не найден. Зарегистрируйтесь сначала.");
-        }
+        return true;
       } catch (error) {
-        console.error("Login error:", error);
+        this.error = error.message;
         throw error;
+      } finally {
+        this.loading = false;
       }
     },
 
     async register(userData) {
       try {
-        // Имитируем задержку сети
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        this.loading = true;
+        this.error = null;
 
-        // Проверяем, что все поля заполнены
-        if (
-          !userData.email?.trim() ||
-          !userData.password ||
-          !userData.username?.trim()
-        ) {
-          throw new Error("Все поля обязательны для заполнения");
-        }
-
-        // Проверяем, не зарегистрирован ли уже пользователь с таким email
-        const existingUser = this.registeredUsers.find(
-          (user) => user.email === userData.email.trim()
+        const validationErrors = this.validateCredentials(
+          userData.email,
+          userData.password,
+          userData.username
         );
-
-        if (existingUser) {
-          throw new Error("Пользователь с таким email уже зарегистрирован");
+        if (validationErrors.length > 0) {
+          throw new Error(validationErrors.join(", "));
         }
 
-        // Создаем нового пользователя
-        const newUser = {
-          id: Date.now(),
+        const response = await fetch(`${API_URL}/user/signup/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: userData.email.trim(),
+            password: userData.password,
+            username: userData.username.trim(),
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          let errorMessage = "Ошибка регистрации";
+
+          if (response.status === 403) {
+            errorMessage =
+              "Доступ запрещен. Возможно, пользователь с таким email уже существует";
+          } else if (data.message) {
+            errorMessage = data.message;
+          } else if (data.email) {
+            errorMessage = `Email: ${data.email[0]}`;
+          } else if (data.username) {
+            errorMessage = `Имя пользователя: ${data.username[0]}`;
+          } else if (data.password) {
+            errorMessage = `Пароль: ${data.password[0]}`;
+          } else if (data.detail) {
+            errorMessage = data.detail;
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        const tokens = await this.getTokens(userData.email, userData.password);
+
+        this.setUser({
           email: userData.email.trim(),
-          username: userData.username.trim(),
-          name: userData.username.trim(),
-          password: userData.password, // Сохраняем пароль для проверки при входе
-        };
+          username: data.result?.username || userData.username.trim(),
+          access: tokens.access,
+          refresh: tokens.refresh,
+        });
 
-        // Добавляем в список зарегистрированных пользователей
-        this.registeredUsers.push(newUser);
-        this.saveRegisteredUsers();
-
-        // Устанавливаем текущего пользователя
-        const mockUser = {
-          id: newUser.id,
-          email: newUser.email,
-          username: newUser.username,
-          name: newUser.name,
-          access: "mock-jwt-token-" + Date.now(),
-        };
-
-        this.setUser(mockUser);
         return true;
       } catch (error) {
-        console.error("Registration error:", error);
+        this.error = error.message;
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async refreshToken() {
+      try {
+        if (!this.refreshToken) {
+          throw new Error("Refresh token отсутствует");
+        }
+
+        const response = await fetch(`${API_URL}/user/token/refresh/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            refresh: this.refreshToken,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+
+          if (response.status === 401) {
+            this.clearUser();
+            throw new Error("Требуется повторный вход");
+          }
+
+          throw new Error(
+            errorData.detail || `Ошибка обновления токена: ${response.status}`
+          );
+        }
+
+        const data = await response.json();
+
+        if (!data.access) {
+          throw new Error("Сервер не вернул новый access token");
+        }
+
+        this.token = data.access;
+
+        if (process.client) {
+          localStorage.setItem("token", this.token);
+        }
+
+        return data.access;
+      } catch (error) {
+        console.error("Token refresh error:", error);
+        if (
+          error.message.includes("Требуется повторный вход") ||
+          error.message.includes("401")
+        ) {
+          this.clearUser();
+        }
         throw error;
       }
     },
 
     setUser(userData) {
-      this.user = userData;
+      this.user = {
+        email: userData.email,
+        username: userData.username,
+        name: userData.username,
+      };
       this.isAuthenticated = true;
       this.token = userData.access;
+      this.refreshToken = userData.refresh;
 
-      // Сохраняем в localStorage
-      if (import.meta.client) {
+      if (process.client) {
         localStorage.setItem("user", JSON.stringify(this.user));
         localStorage.setItem("token", this.token);
+        localStorage.setItem("refreshToken", this.refreshToken);
         localStorage.setItem("isAuthenticated", "true");
       }
     },
@@ -116,65 +268,30 @@ export const useUserStore = defineStore("user", {
       this.user = null;
       this.isAuthenticated = false;
       this.token = null;
+      this.refreshToken = null;
+      this.error = null;
 
-      // Очищаем localStorage
-      if (import.meta.client) {
+      if (process.client) {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         localStorage.removeItem("isAuthenticated");
-      }
-    },
-
-    // Сохраняем список зарегистрированных пользователей
-    saveRegisteredUsers() {
-      if (import.meta.client) {
-        localStorage.setItem(
-          "registeredUsers",
-          JSON.stringify(this.registeredUsers)
-        );
-      }
-    },
-
-    // Восстанавливаем список зарегистрированных пользователей
-    restoreRegisteredUsers() {
-      if (import.meta.client) {
-        const storedUsers = localStorage.getItem("registeredUsers");
-        if (storedUsers) {
-          this.registeredUsers = JSON.parse(storedUsers);
-        }
       }
     },
 
     restoreUser() {
-      if (import.meta.client) {
-        // Восстанавливаем зарегистрированных пользователей
-        this.restoreRegisteredUsers();
-
-        // Восстанавливаем текущего пользователя
+      if (process.client) {
         const userData = localStorage.getItem("user");
         const token = localStorage.getItem("token");
+        const refreshToken = localStorage.getItem("refreshToken");
         const isAuthenticated = localStorage.getItem("isAuthenticated");
 
-        if (userData && token && isAuthenticated === "true") {
+        if (userData && token && refreshToken && isAuthenticated === "true") {
           this.user = JSON.parse(userData);
           this.token = token;
+          this.refreshToken = refreshToken;
           this.isAuthenticated = true;
         }
-      }
-    },
-
-    // Метод для очистки всех данных (для тестирования)
-    clearAllData() {
-      this.user = null;
-      this.isAuthenticated = false;
-      this.token = null;
-      this.registeredUsers = [];
-
-      if (import.meta.client) {
-        localStorage.removeItem("user");
-        localStorage.removeItem("token");
-        localStorage.removeItem("isAuthenticated");
-        localStorage.removeItem("registeredUsers");
       }
     },
   },
@@ -185,7 +302,5 @@ export const useUserStore = defineStore("user", {
       state.user?.username ||
       state.user?.email ||
       "Пользователь",
-    isUsingMockData: () => true,
-    registeredUsersCount: (state) => state.registeredUsers.length,
   },
 });

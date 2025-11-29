@@ -3,6 +3,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ["~/assets/css/main.css"],
   modules: ["@pinia/nuxt", "@nuxt/image"],
+  plugins: ["~/plugins/api.js"],
   app: {
     head: {
       title: "Skypro.Music",

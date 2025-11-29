@@ -339,7 +339,6 @@ const toggleLike = () => {
   display: flex;
   flex-direction: row;
   align-items: center;
-  flex: 2;
   justify-content: center;
 }
 

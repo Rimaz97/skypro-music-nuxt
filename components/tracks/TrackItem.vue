@@ -6,7 +6,6 @@
           <svg class="track__title-svg">
             <use xlink:href="/img/icon/sprite.svg#icon-note" />
           </svg>
-          <!-- Фиолетовая точка для текущего трека -->
           <div
             v-if="isCurrentTrack"
             class="track__status-dot"
@@ -35,7 +34,10 @@
       <div class="track__time">
         <svg
           class="track__time-svg"
-          :class="{ active: isFavorite }"
+          :class="{
+            active: isFavorite,
+            loading: favoritesStore.loading,
+          }"
           @click.stop="toggleFavorite"
         >
           <use xlink:href="/img/icon/sprite.svg#icon-like" />
@@ -51,10 +53,13 @@
 <script setup>
 import { usePlayerStore } from "~/stores/player";
 import { useFavoritesStore } from "~/stores/favorites";
+import { useUserStore } from "~/stores/user";
 import { useAudioPlayer } from "~/composables/useAudioPlayer";
+import { computed } from "vue";
 
 const playerStore = usePlayerStore();
 const favoritesStore = useFavoritesStore();
+const userStore = useUserStore();
 const { initPlayer, playTrack } = useAudioPlayer();
 
 const props = defineProps({
@@ -68,21 +73,14 @@ const props = defineProps({
   },
 });
 
-// Загружаем избранное при монтировании
-onMounted(() => {
-  favoritesStore.loadFavorites();
-});
+// УБЕРИТЕ ЭТОТ БЛОК - избранное загружается автоматически через layout
+// onMounted(() => {
+//   if (userStore.isAuthenticated && favoritesStore.favoriteTracks.length === 0) {
+//     favoritesStore.fetchFavorites().catch(console.error);
+//   }
+// });
 
-// Сохраняем при изменении
-watch(
-  () => favoritesStore.favoriteTracks,
-  () => {
-    favoritesStore.saveFavorites();
-  },
-  { deep: true }
-);
-
-// Проверяем, является ли этот трек текущим
+// Остальной код без изменений...
 const isCurrentTrack = computed(() => {
   const currentTrackId =
     playerStore.currentTrack?._id || playerStore.currentTrack?.id;
@@ -90,17 +88,14 @@ const isCurrentTrack = computed(() => {
   return currentTrackId === trackId;
 });
 
-// Проверяем, воспроизводится ли текущий трек
 const isPlaying = computed(() => {
   return isCurrentTrack.value && playerStore.isPlaying;
 });
 
-// Проверяем, в избранном ли трек
 const isFavorite = computed(() => {
   return favoritesStore.isFavorite(props.track);
 });
 
-// Функция форматирования длительности
 const formatDuration = (seconds) => {
   const totalSeconds = Math.floor(Number(seconds) || 0);
   const mins = Math.floor(totalSeconds / 60);
@@ -108,19 +103,15 @@ const formatDuration = (seconds) => {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 };
 
-// Воспроизведение трека при клике на строку
 const playThisTrack = async (event) => {
-  // Если клик был на кнопке лайка, то не воспроизводим трек
   if (event.target.closest(".track__time-svg")) {
     return;
   }
 
-  // Устанавливаем плейлист, если он передан
   if (props.playlist && props.playlist.length > 0) {
     playerStore.setPlaylist(props.playlist);
   }
 
-  // Инициализируем плеер если нужно
   if (!playerStore.audioRef) {
     initPlayer();
   }
@@ -128,12 +119,18 @@ const playThisTrack = async (event) => {
   playTrack(props.track);
 };
 
-const toggleFavorite = () => {
-  favoritesStore.toggleFavorite(props.track);
+const toggleFavorite = async () => {
+  await favoritesStore.toggleFavorite(props.track);
 };
 </script>
 
 <style scoped>
+/* Стили остаются без изменений */
+.track__time-svg.loading {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .playlist__item {
   width: 100%;
   display: block;
@@ -269,7 +266,6 @@ const toggleFavorite = () => {
   flex-shrink: 0;
 }
 
-/* Стили для фиолетовой точки */
 .track__status-dot {
   position: absolute;
   top: 50%;
