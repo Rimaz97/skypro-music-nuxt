@@ -2,7 +2,8 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
   css: ["~/assets/css/main.css"],
-  modules: ["@nuxt/eslint", "@nuxt/test-utils", "@pinia/nuxt", "@nuxt/image"],
+  modules: ["@pinia/nuxt", "@nuxt/image"],
+  plugins: ["~/plugins/api.js"],
   app: {
     head: {
       title: "Skypro.Music",

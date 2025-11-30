@@ -11,9 +11,9 @@ describe("Search", () => {
   it("emits update:modelValue при вводе текста", async () => {
     const wrapper = mount(Search);
     const input = wrapper.find("input");
-    
+
     await input.setValue("test query");
-    
+
     expect(wrapper.emitted("update:modelValue")).toBeTruthy();
     expect(wrapper.emitted("update:modelValue")[0]).toEqual(["test query"]);
   });
@@ -21,9 +21,9 @@ describe("Search", () => {
   it("emits search событие при вводе текста", async () => {
     const wrapper = mount(Search);
     const input = wrapper.find("input");
-    
+
     await input.setValue("test query");
-    
+
     expect(wrapper.emitted("search")).toBeTruthy();
     expect(wrapper.emitted("search")[0]).toEqual(["test query"]);
   });
@@ -34,10 +34,10 @@ describe("Search", () => {
         modelValue: "test value",
       },
     });
-    
+
     const clearButton = wrapper.find(".search-clear");
     await clearButton.trigger("click");
-    
+
     expect(wrapper.emitted("update:modelValue")[0]).toEqual([""]);
     expect(wrapper.emitted("search")[0]).toEqual([""]);
   });
@@ -48,7 +48,7 @@ describe("Search", () => {
         modelValue: "",
       },
     });
-    
+
     expect(wrapper.find(".search-clear").exists()).toBe(false);
   });
 

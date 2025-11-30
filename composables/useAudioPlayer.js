@@ -1,5 +1,4 @@
 import { usePlayerStore } from "~/stores/player";
-import { watchEffect } from "vue";
 
 export function useAudioPlayer() {
   const playerStore = usePlayerStore();
@@ -11,7 +10,6 @@ export function useAudioPlayer() {
       if (!playerStore.audioRef) {
         const audioElement = document.createElement("audio");
         playerStore.setAudioRef(audioElement);
-        console.log("Плеер инициализирован успешно");
 
         // Добавляем обработчики событий
         audioElement.addEventListener("timeupdate", handleTimeUpdate);
@@ -38,15 +36,12 @@ export function useAudioPlayer() {
     }
 
     try {
-      console.log("Начинаем воспроизведение трека:", track);
-
       // ИСПРАВЛЕНИЕ: сравниваем по _id, а не по id
       const currentTrackId =
         playerStore.currentTrack?._id || playerStore.currentTrack?.id;
       const newTrackId = track._id || track.id;
 
       if (currentTrackId === newTrackId) {
-        console.log("Тот же трек, переключаем воспроизведение");
         playerStore.togglePlay();
         return true;
       }
@@ -60,8 +55,6 @@ export function useAudioPlayer() {
         console.error("У трека нет аудиофайла:", track);
         return false;
       }
-
-      console.log("Устанавливаем источник аудио:", audioUrl);
 
       // Пауза перед установкой нового источника
       playerStore.audioRef.pause();
@@ -80,7 +73,6 @@ export function useAudioPlayer() {
       await playerStore.audioRef.play();
       playerStore.setPlaying(true);
 
-      console.log("Трек успешно воспроизводится");
       return true;
     } catch (error) {
       console.error("Ошибка воспроизведения:", error);
@@ -103,7 +95,6 @@ export function useAudioPlayer() {
 
   // Обработчик окончания трека
   const handleTrackEnd = () => {
-    console.log("Трек завершен, переключаем на следующий");
     playerStore.setPlaying(false);
     playerStore.setProgress(0);
 
@@ -129,15 +120,6 @@ export function useAudioPlayer() {
     if (!playerStore.audioRef) return;
     playerStore.audioRef.volume = playerStore.volume / 100;
   };
-
-  // Используем watchEffect для автоматической остановки трека при достижении конца
-  watchEffect(() => {
-    if (playerStore.progress >= 100 && playerStore.isPlaying) {
-      console.log("Трек завершен, останавливаем воспроизведение");
-      playerStore.setPlaying(false);
-      playerStore.setProgress(0);
-    }
-  });
 
   return {
     initPlayer,
