@@ -29,10 +29,6 @@ export const usePlayerStore = defineStore("player", {
   actions: {
     // Установить текущий трек
     setCurrentTrack(track) {
-      console.log(
-        "Store: Устанавливаем текущий трек:",
-        track?.name || track?.title
-      );
       this.currentTrack = track;
       this.showPlayer = true;
 

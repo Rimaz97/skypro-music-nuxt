@@ -116,7 +116,7 @@ const playThisTrack = async (event) => {
     initPlayer();
   }
 
-  playTrack(props.track);
+  playTrack(props.track, props.playlist);
 };
 
 const toggleFavorite = async () => {

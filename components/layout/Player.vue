@@ -134,7 +134,10 @@ const { seekTo, updateVolume } = useAudioPlayer();
 
 // Загружаем избранное при монтировании
 onMounted(() => {
-  favoritesStore.loadFavorites();
+  const userStore = useUserStore();
+  if (userStore.isAuthenticated) {
+    favoritesStore.fetchFavorites();
+  }
 });
 
 // Проверяем, в избранном ли текущий трек

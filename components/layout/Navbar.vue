@@ -55,7 +55,10 @@
 </template>
 
 <script setup>
+import { useUserStore } from "~/stores/user";
+
 const userStore = useUserStore();
+const router = useRouter();
 const isMenuOpen = ref(false);
 
 const toggleMenu = () => {
@@ -66,10 +69,10 @@ const closeMenu = () => {
   isMenuOpen.value = false;
 };
 
-const logout = () => {
-  userStore.clearUser();
+const logout = async () => {
+  await userStore.clearUser();
   closeMenu();
-  navigateTo("/login");
+  await navigateTo("/login");
 };
 
 // Восстанавливаем пользователя при загрузке компонента
