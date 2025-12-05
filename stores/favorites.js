@@ -52,7 +52,12 @@ export const useFavoritesStore = defineStore("favorites", {
               }
 
               const data = await retryResponse.json();
-              this.favoriteTracks = data.data || [];
+              // Исправляем структуру ответа API
+              this.favoriteTracks = Array.isArray(data)
+                ? data
+                : Array.isArray(data?.data)
+                ? data.data
+                : [];
               return;
             } catch {
               throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
@@ -62,10 +67,16 @@ export const useFavoritesStore = defineStore("favorites", {
         }
 
         const data = await response.json();
-        this.favoriteTracks = data.data || [];
+        // API возвращает данные в разном формате, нормализуем
+        this.favoriteTracks = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.data)
+          ? data.data
+          : [];
       } catch (error) {
         console.error("Ошибка загрузки избранного:", error);
         this.error = error.message;
+        this.favoriteTracks = []; // Сбрасываем на пустой массив
 
         if (error.message.includes("Сессия истекла")) {
           userStore.clearUser();
@@ -90,16 +101,28 @@ export const useFavoritesStore = defineStore("favorites", {
         const trackId = track._id || track.id;
         const isCurrentlyFavorite = this.isFavorite(track);
 
+        console.log("toggleFavorite:", {
+          trackId,
+          isCurrentlyFavorite,
+          currentFavorites: this.favoriteTracks.length,
+        });
+
         if (isCurrentlyFavorite) {
           await this.removeFromFavorites(trackId);
+          // Обновляем локальный список
           this.favoriteTracks = this.favoriteTracks.filter(
             (t) => (t._id || t.id) !== trackId
           );
         } else {
           await this.addToFavorites(trackId);
-          this.favoriteTracks.push(track);
+          // Добавляем трек в локальный список
+          this.favoriteTracks = [...this.favoriteTracks, track];
         }
 
+        console.log(
+          "toggleFavorite успешно, новые избранные:",
+          this.favoriteTracks.length
+        );
         return true;
       } catch (error) {
         console.error("Error toggling favorite:", error);
@@ -200,6 +223,14 @@ export const useFavoritesStore = defineStore("favorites", {
 
     isFavorite(track) {
       const trackId = track._id || track.id;
+      // Проверяем, что favoriteTracks - массив
+      if (!Array.isArray(this.favoriteTracks)) {
+        console.error(
+          "favoriteTracks не является массивом:",
+          this.favoriteTracks
+        );
+        return false;
+      }
       return this.favoriteTracks.some((t) => (t._id || t.id) === trackId);
     },
   },

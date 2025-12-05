@@ -3,7 +3,7 @@
     <div class="sidebar__block">
       <div class="sidebar__list">
         <div class="sidebar__item">
-          <NuxtLink class="sidebar__link" to="/playlist/1">
+          <NuxtLink class="sidebar__link" to="/playlist/day">
             <NuxtImg
               class="sidebar__img"
               src="/img/playlist01.png"
@@ -14,7 +14,7 @@
           </NuxtLink>
         </div>
         <div class="sidebar__item">
-          <NuxtLink class="sidebar__link" to="/playlist/2">
+          <NuxtLink class="sidebar__link" to="/playlist/dance">
             <NuxtImg
               class="sidebar__img"
               src="/img/playlist02.png"
@@ -25,7 +25,7 @@
           </NuxtLink>
         </div>
         <div class="sidebar__item">
-          <NuxtLink class="sidebar__link" to="/playlist/3">
+          <NuxtLink class="sidebar__link" to="/playlist/indie">
             <NuxtImg
               class="sidebar__img"
               src="/img/playlist03.png"
@@ -59,12 +59,14 @@
   width: 250px;
   height: 150px;
   margin-bottom: 30px;
+  position: relative;
 }
 
 .sidebar__link {
   width: 100%;
   height: 100%;
   display: block;
+  position: relative;
 }
 
 .sidebar__img {

@@ -2,14 +2,23 @@
   <div>
     <h2 class="centerblock__h2">{{ playlistTitle }}</h2>
 
-    <!-- Состояние загрузки -->
     <div v-if="pending" class="content__playlist playlist">
       <div class="loading">Загрузка плейлиста...</div>
     </div>
 
-    <!-- Сообщение об ошибке -->
     <div v-else-if="error" class="content__playlist playlist">
       <div class="error">Ошибка загрузки плейлиста: {{ error.message }}</div>
+    </div>
+
+    <div
+      v-else-if="playlistTracks.length === 0"
+      class="content__playlist playlist"
+    >
+      <div class="empty-state">
+        <div class="empty-icon">🎵</div>
+        <h3 class="empty-title">Плейлист пуст</h3>
+        <p class="empty-description">Треки временно недоступны</p>
+      </div>
     </div>
 
     <div v-else class="centerblock__content playlist-content">
@@ -40,83 +49,141 @@
 const route = useRoute();
 const playlistId = route.params.id;
 
-const playlists = {
-  1: { title: "Плейлист дня", filter: "day" },
-  2: { title: "100 танцевальных хитов", filter: "dance" },
-  3: { title: "Инди-заряд", filter: "indie" },
+// Маппинг текстовых ID на названия и логику фильтрации
+const playlistConfigs = {
+  day: {
+    title: "Плейлист дня",
+    filter: (allTracks) =>
+      [...allTracks].sort(() => Math.random() - 0.5).slice(0, 20),
+  },
+  dance: {
+    title: "100 танцевальных хитов",
+    filter: (allTracks) => {
+      const danceTracks = allTracks.filter((track) => {
+        const genreString = getGenreString(track);
+        return (
+          genreString.includes("электронная") ||
+          genreString.includes("танцевальн") ||
+          genreString.includes("поп") ||
+          genreString.includes("диско")
+        );
+      });
+
+      return danceTracks.length > 0
+        ? danceTracks.slice(0, 15)
+        : [...allTracks].sort(() => Math.random() - 0.5).slice(0, 15);
+    },
+  },
+  indie: {
+    title: "Инди-заряд",
+    filter: (allTracks) => {
+      const indieTracks = allTracks.filter((track) => {
+        const genreString = getGenreString(track);
+        return (
+          genreString.includes("рок") ||
+          genreString.includes("альтернатив") ||
+          genreString.includes("инди")
+        );
+      });
+
+      return indieTracks.length > 0
+        ? indieTracks.slice(0, 15)
+        : [...allTracks].sort(() => Math.random() - 0.5).slice(0, 15);
+    },
+  },
+  // Старые ссылки для обратной совместимости
+  1: {
+    title: "Плейлист дня",
+    filter: (allTracks) =>
+      [...allTracks].sort(() => Math.random() - 0.5).slice(0, 20),
+  },
+  2: {
+    title: "100 танцевальных хитов",
+    filter: (allTracks) => {
+      const danceTracks = allTracks.filter((track) => {
+        const genreString = getGenreString(track);
+        return (
+          genreString.includes("электронная") ||
+          genreString.includes("танцевальн") ||
+          genreString.includes("поп") ||
+          genreString.includes("диско")
+        );
+      });
+
+      return danceTracks.length > 0
+        ? danceTracks.slice(0, 15)
+        : [...allTracks].sort(() => Math.random() - 0.5).slice(0, 15);
+    },
+  },
+  3: {
+    title: "Инди-заряд",
+    filter: (allTracks) => {
+      const indieTracks = allTracks.filter((track) => {
+        const genreString = getGenreString(track);
+        return (
+          genreString.includes("рок") ||
+          genreString.includes("альтернатив") ||
+          genreString.includes("инди")
+        );
+      });
+
+      return indieTracks.length > 0
+        ? indieTracks.slice(0, 15)
+        : [...allTracks].sort(() => Math.random() - 0.5).slice(0, 15);
+    },
+  },
 };
 
-const playlistInfo = playlists[playlistId] || { title: "Плейлист", filter: "" };
-const playlistTitle = ref(playlistInfo.title);
+// Получаем конфиг для текущего плейлиста
+const playlistConfig = playlistConfigs[playlistId] || {
+  title: `Плейлист ${playlistId}`,
+  filter: (allTracks) => allTracks.slice(0, 10),
+};
+
+const playlistTitle = ref(playlistConfig.title);
 
 // Динамический заголовок
 useHead({
   title: `${playlistTitle.value} | Skypro.Music`,
 });
 
-// Используем ленивую загрузку для плейлистов
-const {
-  data: response,
-  pending,
-  error,
-} = await useLazyFetch(
-  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/",
-  {
-    lazy: true,
-    server: false,
-  }
-);
-
 // Функция для получения строки жанра
 const getGenreString = (track) => {
   if (!track.genre) return "";
-  if (Array.isArray(track.genre)) {
-    return track.genre.join(" ").toLowerCase();
+
+  try {
+    if (Array.isArray(track.genre)) {
+      const genres = [...track.genre];
+      return genres
+        .map((g) => (g ? g.toString().toLowerCase() : ""))
+        .filter((g) => g)
+        .join(" ");
+    }
+
+    if (typeof track.genre === "string") {
+      return track.genre.toLowerCase();
+    }
+
+    return String(track.genre).toLowerCase();
+  } catch (error) {
+    return "";
   }
-  return track.genre.toLowerCase();
 };
 
+// Загружаем все треки для фильтрации
+const {
+  data: tracksData,
+  pending,
+  error,
+} = await useFetch(
+  "https://webdev-music-003b5b991590.herokuapp.com/catalog/track/all/"
+);
+
 const playlistTracks = computed(() => {
-  const allTracks = response.value?.data || [];
+  const allTracks = tracksData.value?.data || [];
+  if (allTracks.length === 0) return [];
 
-  // Фильтрация треков по типу плейлиста
-  let filteredTracks = allTracks;
-
-  switch (playlistInfo.filter) {
-    case "day":
-      // Для плейлиста дня - случайные треки
-      filteredTracks = [...allTracks]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 20);
-      break;
-    case "dance":
-      // Для танцевальных хитов - треки с высоким темпом
-      filteredTracks = allTracks
-        .filter((track) => {
-          const genreString = getGenreString(track);
-          return (
-            genreString.includes("dance") || genreString.includes("electronic")
-          );
-        })
-        .slice(0, 15);
-      break;
-    case "indie":
-      // Для инди-заряда - инди треки
-      filteredTracks = allTracks
-        .filter((track) => {
-          const genreString = getGenreString(track);
-          return (
-            genreString.includes("indie") || genreString.includes("alternative")
-          );
-        })
-        .slice(0, 15);
-      break;
-    default:
-      // По умолчанию - первые 10 треков
-      filteredTracks = allTracks.slice(0, 10);
-  }
-
-  return filteredTracks;
+  return playlistConfig.filter(allTracks);
 });
 </script>
 
@@ -132,5 +199,27 @@ const playlistTracks = computed(() => {
 
 .error {
   color: #ff6b6b;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #696969;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.empty-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.empty-description {
+  font-size: 16px;
+  line-height: 1.5;
 }
 </style>

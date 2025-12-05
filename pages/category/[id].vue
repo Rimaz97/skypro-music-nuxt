@@ -2,17 +2,14 @@
   <div>
     <h2 class="centerblock__h2">{{ categoryName || "Категория" }}</h2>
 
-    <!-- Состояние загрузки -->
     <div v-if="pending" class="content__playlist playlist">
       <div class="loading">Загрузка треков категории...</div>
     </div>
 
-    <!-- Сообщение об ошибке -->
     <div v-else-if="error" class="content__playlist playlist">
       <div class="error">Ошибка загрузки треков: {{ error.message }}</div>
     </div>
 
-    <!-- Список треков категории -->
     <div v-else class="centerblock__content playlist-content">
       <div class="content__title playlist-title">
         <div class="playlist-title__col col01">Трек</div>
@@ -41,24 +38,18 @@
 const route = useRoute();
 const categoryId = route.params.id;
 
-// Определяем категории
+// Определяем категории с правильными названиями
 const categories = {
   rock: { title: "Рок музыка", genres: ["rock", "alternative", "indie rock"] },
   pop: { title: "Поп музыка", genres: ["pop", "dance pop", "electropop"] },
   jazz: { title: "Джаз", genres: ["jazz", "smooth jazz", "bossa nova"] },
-  classical: {
-    title: "Классическая музыка",
-    genres: ["classical", "orchestral"],
-  },
+  classical: { title: "Классическая музыка", genres: ["classical", "orchestral"] },
   hiphop: { title: "Хип-хоп", genres: ["hip-hop", "rap", "trap"] },
-  electronic: {
-    title: "Электронная музыка",
-    genres: ["electronic", "house", "techno", "dubstep"],
-  },
+  electronic: { title: "Электронная музыка", genres: ["electronic", "house", "techno", "dubstep"] },
 };
 
 const categoryInfo = categories[categoryId] || {
-  title: "Категория",
+  title: categoryId.charAt(0).toUpperCase() + categoryId.slice(1), // Делаем первую букву заглавной
   genres: [],
 };
 const categoryName = ref(categoryInfo.title);
@@ -88,7 +79,6 @@ const {
     lazy: true,
     server: false,
     transform: (data) => {
-      // Фильтруем треки по жанрам категории
       if (!data.data) return [];
 
       const filteredTracks = data.data.filter((track) => {
@@ -113,14 +103,6 @@ watch(categoryName, (newName) => {
   useHead({
     title: `${newName} | Skypro.Music`,
   });
-});
-
-// Логируем загрузку категории для отладки
-onMounted(() => {
-  console.log(
-    `Загружена категория: ${categoryName.value}`,
-    categoryTracks.value.length
-  );
 });
 </script>
 
